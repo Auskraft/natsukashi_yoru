@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
+import '../../../core/components/overlay_kit.dart';
 import '../game/snake_flame_game.dart';
 
 /// HUD: сверху счёт/рекорд/комбо, снизу — ненавязчивая статистика
@@ -39,11 +40,19 @@ class SnakeHud extends StatelessWidget {
                     child: _ComboBadge(combo: combo),
                   ),
                 ),
-                _Stat(
-                  label: 'РЕКОРД',
-                  value: '$best',
-                  color: const Color(0xFFFFD54F),
-                  alignEnd: true,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _Stat(
+                      label: 'РЕКОРД',
+                      value: '$best',
+                      color: const Color(0xFFFFD54F),
+                      alignEnd: true,
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
                 ),
               ],
             ),

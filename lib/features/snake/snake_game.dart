@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/overlay_kit.dart';
 import '../../core/storage/game_storage.dart';
 import 'components/snake_logic.dart';
 import 'game/snake_flame_game.dart';
@@ -72,10 +73,17 @@ class _SnakeScreenState extends State<SnakeScreen> {
           children: [
             GameWidget<SnakeFlameGame>(game: _game),
             Positioned.fill(
-              child: ValueListenableBuilder<SnakePhase>(
-                valueListenable: _game.phase,
-                builder: (context, phase, _) {
-                  switch (phase) {
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  if (_game.isPaused.value) {
+                    return PausePanel(
+                      onResume: _game.togglePause,
+                      onRestart: _game.start,
+                      onExit: () => Navigator.of(context).pop(),
+                    );
+                  }
+                  switch (_game.phase.value) {
                     case SnakePhase.ready:
                       return SnakeReadyOverlay(onStart: _game.start);
                     case SnakePhase.running:

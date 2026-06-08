@@ -42,6 +42,7 @@ class Match3FlameGame extends FlameGame {
   final ValueNotifier<double> timeLeft = ValueNotifier(_roundTime);
   final ValueNotifier<Match3Phase> phase = ValueNotifier(Match3Phase.ready);
   final ValueNotifier<double> fps = ValueNotifier(0);
+  final ValueNotifier<bool> isPaused = ValueNotifier(false);
 
   static const double _roundTime = 60;
 
@@ -60,6 +61,12 @@ class Match3FlameGame extends FlameGame {
   Offset _origin = Offset.zero;
 
   bool get _running => phase.value == Match3Phase.running;
+  bool get _active => _running && !isPaused.value;
+
+  void togglePause() {
+    if (!_running) return;
+    isPaused.value = !isPaused.value;
+  }
 
   void start() {
     _logic.reset();
@@ -70,6 +77,7 @@ class Match3FlameGame extends FlameGame {
     _popups.clear();
     _shake = 0;
     _flash = 0;
+    isPaused.value = false;
     phase.value = Match3Phase.running;
   }
 
@@ -86,7 +94,7 @@ class Match3FlameGame extends FlameGame {
   }
 
   void trySwapCells(Point<int> a, Point<int> b) {
-    if (!_running) return;
+    if (!_active) return;
     final res = _logic.trySwap(a, b);
     score.value = _logic.score;
 
@@ -156,7 +164,7 @@ class Match3FlameGame extends FlameGame {
 
     _advanceEffects(dt);
 
-    if (_running) {
+    if (_active) {
       timeLeft.value -= dt;
       if (timeLeft.value <= 0) {
         timeLeft.value = 0;

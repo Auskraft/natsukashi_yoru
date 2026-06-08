@@ -35,6 +35,7 @@ class PuyoPuyoFlameGame extends FlameGame {
   final ValueNotifier<List<int>> next = ValueNotifier(const [0, 0]);
   final ValueNotifier<PuyoPhase> phase = ValueNotifier(PuyoPhase.ready);
   final ValueNotifier<double> fps = ValueNotifier(0);
+  final ValueNotifier<bool> isPaused = ValueNotifier(false);
 
   double _acc = 0;
   static const double _gravity = 0.5;
@@ -53,6 +54,12 @@ class PuyoPuyoFlameGame extends FlameGame {
   double get cellSize => _cell;
 
   bool get _running => phase.value == PuyoPhase.running;
+  bool get _active => _running && !isPaused.value;
+
+  void togglePause() {
+    if (!_running) return;
+    isPaused.value = !isPaused.value;
+  }
 
   void start() {
     _logic.reset();
@@ -64,23 +71,24 @@ class PuyoPuyoFlameGame extends FlameGame {
     _popups.clear();
     _shake = 0;
     _flash = 0;
+    isPaused.value = false;
     phase.value = PuyoPhase.running;
   }
 
   void moveLeft() {
-    if (_running && _logic.moveLeft()) Haptics.select();
+    if (_active && _logic.moveLeft()) Haptics.select();
   }
 
   void moveRight() {
-    if (_running && _logic.moveRight()) Haptics.select();
+    if (_active && _logic.moveRight()) Haptics.select();
   }
 
   void rotate() {
-    if (_running && _logic.rotateCW()) Haptics.light();
+    if (_active && _logic.rotateCW()) Haptics.light();
   }
 
   void hardDrop() {
-    if (!_running) return;
+    if (!_active) return;
     final res = _logic.hardDrop();
     _shake = max(_shake, 0.35);
     Haptics.medium();
@@ -88,7 +96,7 @@ class PuyoPuyoFlameGame extends FlameGame {
   }
 
   void softDrop() {
-    if (!_running) return;
+    if (!_active) return;
     final res = _logic.softDrop();
     score.value = _logic.score;
     if (res != null) _onLock(res);
@@ -162,7 +170,7 @@ class PuyoPuyoFlameGame extends FlameGame {
     }
 
     _advanceEffects(dt);
-    if (!_running) return;
+    if (!_active) return;
 
     _acc += dt;
     while (_acc >= _gravity) {

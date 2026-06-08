@@ -32,11 +32,19 @@ class PuyoHud extends StatelessWidget {
                   valueListenable: game.next,
                   builder: (_, next, _) => _NextPair(colors: next),
                 ),
-                StatBlock(
-                  label: 'РЕКОРД',
-                  value: '$best',
-                  color: const Color(0xFFFFD54F),
-                  alignEnd: true,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatBlock(
+                      label: 'РЕКОРД',
+                      value: '$best',
+                      color: const Color(0xFFFFD54F),
+                      alignEnd: true,
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
                 ),
               ],
             ),

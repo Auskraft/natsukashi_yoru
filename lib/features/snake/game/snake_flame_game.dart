@@ -35,6 +35,15 @@ class SnakeFlameGame extends FlameGame {
   final ValueNotifier<double> speed = ValueNotifier(1);
   final ValueNotifier<double> fps = ValueNotifier(0);
   final ValueNotifier<SnakePhase> phase = ValueNotifier(SnakePhase.ready);
+  final ValueNotifier<bool> isPaused = ValueNotifier(false);
+
+  bool get _running => phase.value == SnakePhase.running;
+  bool get _active => _running && !isPaused.value;
+
+  void togglePause() {
+    if (!_running) return;
+    isPaused.value = !isPaused.value;
+  }
 
   // Тайминг шага: старт спокойнее, разгон мягче (фидбек: «уровень 1 быстроват»).
   double _acc = 0;
@@ -80,11 +89,12 @@ class SnakeFlameGame extends FlameGame {
     _popups.clear();
     _shake = 0;
     _flash = 0;
+    isPaused.value = false;
     phase.value = SnakePhase.running;
   }
 
   void steer(Direction d) {
-    if (phase.value == SnakePhase.running) {
+    if (_active) {
       _logic.steer(d);
       Haptics.select();
     }
@@ -105,7 +115,7 @@ class SnakeFlameGame extends FlameGame {
     _foodPulse = (_foodPulse + dt * 4) % (2 * pi);
     _advanceEffects(dt);
 
-    if (phase.value != SnakePhase.running) return;
+    if (!_active) return;
 
     _sinceEat += dt;
     _acc += dt;

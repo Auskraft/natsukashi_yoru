@@ -31,14 +31,22 @@ class MinesweeperHud extends StatelessWidget {
                   builder: (_, mines, _) =>
                       StatBlock(label: '💣 МИНЫ', value: '$mines'),
                 ),
-                ValueListenableBuilder<int>(
-                  valueListenable: game.timeSec,
-                  builder: (_, t, _) => StatBlock(
-                    label: 'ВРЕМЯ',
-                    value: formatTime(t),
-                    color: const Color(0xFF4ECDC4),
-                    alignEnd: true,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ValueListenableBuilder<int>(
+                      valueListenable: game.timeSec,
+                      builder: (_, t, _) => StatBlock(
+                        label: 'ВРЕМЯ',
+                        value: formatTime(t),
+                        color: const Color(0xFF4ECDC4),
+                        alignEnd: true,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
                 ),
               ],
             ),

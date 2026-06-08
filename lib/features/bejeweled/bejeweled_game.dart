@@ -81,10 +81,17 @@ class _BejeweledScreenState extends State<BejeweledScreen> {
           children: [
             GameWidget<BejeweledFlameGame>(game: _game),
             Positioned.fill(
-              child: ValueListenableBuilder<BejeweledPhase>(
-                valueListenable: _game.phase,
-                builder: (context, phase, _) {
-                  switch (phase) {
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  if (_game.isPaused.value) {
+                    return PausePanel(
+                      onResume: _game.togglePause,
+                      onRestart: _game.start,
+                      onExit: () => Navigator.of(context).pop(),
+                    );
+                  }
+                  switch (_game.phase.value) {
                     case BejeweledPhase.ready:
                       return ReadyPanel(
                         emoji: '💠',

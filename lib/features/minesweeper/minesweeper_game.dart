@@ -59,10 +59,17 @@ class _MinesweeperScreenState extends State<MinesweeperScreen> {
           children: [
             GameWidget<MinesweeperFlameGame>(game: _game),
             Positioned.fill(
-              child: ValueListenableBuilder<MinesweeperPhase>(
-                valueListenable: _game.phase,
-                builder: (context, phase, _) {
-                  switch (phase) {
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  if (_game.isPaused.value) {
+                    return PausePanel(
+                      onResume: _game.togglePause,
+                      onRestart: _game.start,
+                      onExit: () => Navigator.of(context).pop(),
+                    );
+                  }
+                  switch (_game.phase.value) {
                     case MinesweeperPhase.ready:
                       return ReadyPanel(
                         emoji: '🚩',

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
+import '../../../core/components/overlay_kit.dart';
 import '../components/tetris_logic.dart';
 import '../game/tetris_flame_game.dart';
 import 'tetris_style.dart';
@@ -36,11 +37,19 @@ class TetrisHud extends StatelessWidget {
                   valueListenable: game.next,
                   builder: (_, t, _) => _NextBox(piece: t),
                 ),
-                _Stat(
-                  label: 'РЕКОРД',
-                  value: '$best',
-                  color: const Color(0xFFFFD54F),
-                  alignEnd: true,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _Stat(
+                      label: 'РЕКОРД',
+                      value: '$best',
+                      color: const Color(0xFFFFD54F),
+                      alignEnd: true,
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
                 ),
               ],
             ),

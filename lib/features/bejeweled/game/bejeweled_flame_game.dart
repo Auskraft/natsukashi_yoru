@@ -37,6 +37,7 @@ class BejeweledFlameGame extends FlameGame {
   final ValueNotifier<int> movesLeft = ValueNotifier(_startMoves);
   final ValueNotifier<BejeweledPhase> phase = ValueNotifier(BejeweledPhase.ready);
   final ValueNotifier<double> fps = ValueNotifier(0);
+  final ValueNotifier<bool> isPaused = ValueNotifier(false);
 
   static const int _startMoves = 25;
 
@@ -54,6 +55,12 @@ class BejeweledFlameGame extends FlameGame {
   Offset _origin = Offset.zero;
 
   bool get _running => phase.value == BejeweledPhase.running;
+  bool get _active => _running && !isPaused.value;
+
+  void togglePause() {
+    if (!_running) return;
+    isPaused.value = !isPaused.value;
+  }
 
   void start() {
     _logic.reset();
@@ -64,6 +71,7 @@ class BejeweledFlameGame extends FlameGame {
     _popups.clear();
     _shake = 0;
     _flash = 0;
+    isPaused.value = false;
     phase.value = BejeweledPhase.running;
   }
 
@@ -76,7 +84,7 @@ class BejeweledFlameGame extends FlameGame {
   }
 
   void trySwapCells(Point<int> a, Point<int> b) {
-    if (!_running) return;
+    if (!_active) return;
     final res = _logic.trySwap(a, b);
     score.value = _logic.score;
 

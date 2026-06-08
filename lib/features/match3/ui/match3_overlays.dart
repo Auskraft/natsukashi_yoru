@@ -27,11 +27,19 @@ class Match3Hud extends StatelessWidget {
                   builder: (_, score, _) =>
                       StatBlock(label: 'СЧЁТ', value: '$score'),
                 ),
-                StatBlock(
-                  label: 'РЕКОРД',
-                  value: '$best',
-                  color: const Color(0xFFFFD54F),
-                  alignEnd: true,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatBlock(
+                      label: 'РЕКОРД',
+                      value: '$best',
+                      color: const Color(0xFFFFD54F),
+                      alignEnd: true,
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
                 ),
               ],
             ),

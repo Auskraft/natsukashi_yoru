@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/overlay_kit.dart';
 import '../../core/storage/game_storage.dart';
 import 'game/tetris_flame_game.dart';
 import 'ui/tetris_overlays.dart';
@@ -97,10 +98,17 @@ class _TetrisScreenState extends State<TetrisScreen> {
           children: [
             GameWidget<TetrisFlameGame>(game: _game),
             Positioned.fill(
-              child: ValueListenableBuilder<TetrisPhase>(
-                valueListenable: _game.phase,
-                builder: (context, phase, _) {
-                  switch (phase) {
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  if (_game.isPaused.value) {
+                    return PausePanel(
+                      onResume: _game.togglePause,
+                      onRestart: _game.start,
+                      onExit: () => Navigator.of(context).pop(),
+                    );
+                  }
+                  switch (_game.phase.value) {
                     case TetrisPhase.ready:
                       return TetrisReadyOverlay(onStart: _game.start);
                     case TetrisPhase.running:

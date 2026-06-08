@@ -37,11 +37,19 @@ class BejeweledHud extends StatelessWidget {
                         : const Color(0xFF4ECDC4),
                   ),
                 ),
-                StatBlock(
-                  label: 'РЕКОРД',
-                  value: '$best',
-                  color: const Color(0xFFFFD54F),
-                  alignEnd: true,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatBlock(
+                      label: 'РЕКОРД',
+                      value: '$best',
+                      color: const Color(0xFFFFD54F),
+                      alignEnd: true,
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
                 ),
               ],
             ),

@@ -155,6 +155,72 @@ class ReadyPanel extends StatelessWidget {
   }
 }
 
+/// Компактная круглая кнопка паузы для встраивания в HUD.
+class PauseButton extends StatelessWidget {
+  const PauseButton({super.key, required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.1),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: const Padding(
+          padding: EdgeInsets.all(8),
+          child: Icon(Icons.pause_rounded, color: Colors.white, size: 22),
+        ),
+      ),
+    );
+  }
+}
+
+/// Экран паузы: продолжить, начать заново, выйти в меню.
+class PausePanel extends StatelessWidget {
+  const PausePanel({
+    super.key,
+    required this.onResume,
+    required this.onRestart,
+    required this.onExit,
+  });
+
+  final VoidCallback onResume;
+  final VoidCallback onRestart;
+  final VoidCallback onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    return GameScrim(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('⏸', style: TextStyle(fontSize: 56)),
+          const SizedBox(height: 8),
+          Text('Пауза', style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 28),
+          PlayButton(label: 'ПРОДОЛЖИТЬ', onTap: onResume),
+          TextButton(
+            onPressed: onRestart,
+            child: Text(
+              'Заново',
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+            ),
+          ),
+          TextButton(
+            onPressed: onExit,
+            child: Text(
+              'В меню',
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Экран конца игры: рекорд, счёт, мгновенный рестарт и выход в меню.
 class GameOverPanel extends StatelessWidget {
   const GameOverPanel({

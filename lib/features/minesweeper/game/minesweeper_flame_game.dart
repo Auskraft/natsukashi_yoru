@@ -28,6 +28,7 @@ class MinesweeperFlameGame extends FlameGame {
   final ValueNotifier<MinesweeperPhase> phase =
       ValueNotifier(MinesweeperPhase.ready);
   final ValueNotifier<double> fps = ValueNotifier(0);
+  final ValueNotifier<bool> isPaused = ValueNotifier(false);
 
   double _time = 0;
 
@@ -45,6 +46,12 @@ class MinesweeperFlameGame extends FlameGame {
   Offset _origin = Offset.zero;
 
   bool get _running => phase.value == MinesweeperPhase.running;
+  bool get _active => _running && !isPaused.value;
+
+  void togglePause() {
+    if (!_running) return;
+    isPaused.value = !isPaused.value;
+  }
 
   void start() {
     _logic = MinesweeperLogic(cols, rows, mineCount, random: _rng);
@@ -55,6 +62,7 @@ class MinesweeperFlameGame extends FlameGame {
     _reveals.clear();
     _shake = 0;
     _flash = 0;
+    isPaused.value = false;
     phase.value = MinesweeperPhase.running;
   }
 
@@ -67,7 +75,7 @@ class MinesweeperFlameGame extends FlameGame {
   }
 
   void revealAt(Offset local) {
-    if (!_running) return;
+    if (!_active) return;
     final p = cellAt(local);
     if (p == null) return;
     final res = _logic.reveal(p.x, p.y);
@@ -109,7 +117,7 @@ class MinesweeperFlameGame extends FlameGame {
   }
 
   void flagAt(Offset local) {
-    if (!_running) return;
+    if (!_active) return;
     final p = cellAt(local);
     if (p == null) return;
     if (_logic.toggleFlag(p.x, p.y)) {
@@ -155,7 +163,7 @@ class MinesweeperFlameGame extends FlameGame {
       _fpsAcc = 0;
     }
 
-    if (_running) {
+    if (_active) {
       _time += dt;
       final s = _time.floor();
       if (s != timeSec.value) timeSec.value = s;

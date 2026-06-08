@@ -29,6 +29,7 @@ class TetrisFlameGame extends FlameGame {
   final ValueNotifier<Tetromino> next = ValueNotifier(Tetromino.i);
   final ValueNotifier<TetrisPhase> phase = ValueNotifier(TetrisPhase.ready);
   final ValueNotifier<double> fps = ValueNotifier(0);
+  final ValueNotifier<bool> isPaused = ValueNotifier(false);
 
   int _clearCombo = 0;
 
@@ -70,25 +71,26 @@ class TetrisFlameGame extends FlameGame {
     _rowFlashes.clear();
     _shake = 0;
     _flash = 0;
+    isPaused.value = false;
     phase.value = TetrisPhase.running;
   }
 
   // ── Ввод (вызывается экраном) ────────────────────────────────────────────
 
   void moveLeft() {
-    if (_running && _logic.moveLeft()) Haptics.select();
+    if (_active && _logic.moveLeft()) Haptics.select();
   }
 
   void moveRight() {
-    if (_running && _logic.moveRight()) Haptics.select();
+    if (_active && _logic.moveRight()) Haptics.select();
   }
 
   void rotate() {
-    if (_running && _logic.rotateCW()) Haptics.light();
+    if (_active && _logic.rotateCW()) Haptics.light();
   }
 
   void hardDrop() {
-    if (!_running) return;
+    if (!_active) return;
     final landing = _logic.ghost().cells();
     final res = _logic.hardDrop();
     _shake = max(_shake, 0.45);
@@ -98,7 +100,7 @@ class TetrisFlameGame extends FlameGame {
   }
 
   void softDrop() {
-    if (!_running) return;
+    if (!_active) return;
     final res = _logic.softDrop();
     score.value = _logic.score;
     if (res != null) {
@@ -108,6 +110,12 @@ class TetrisFlameGame extends FlameGame {
   }
 
   bool get _running => phase.value == TetrisPhase.running;
+  bool get _active => _running && !isPaused.value;
+
+  void togglePause() {
+    if (!_running) return;
+    isPaused.value = !isPaused.value;
+  }
 
   void _onLock(LockResult res) {
     final prevLevel = level.value;
@@ -258,7 +266,7 @@ class TetrisFlameGame extends FlameGame {
     }
 
     _advanceEffects(dt);
-    if (!_running) return;
+    if (!_active) return;
 
     _acc += dt;
     while (_acc >= _gravityInterval) {
