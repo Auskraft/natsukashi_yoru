@@ -53,6 +53,7 @@ class Piece {
 class LockResult {
   LockResult({
     required this.clearedRows,
+    required this.clearedCells,
     required this.gained,
     required this.gameOver,
     required this.tetris,
@@ -60,6 +61,10 @@ class LockResult {
   });
 
   final List<int> clearedRows;
+
+  /// Типы клеток каждой сожжённой строки (до схлопывания) — для частиц «в цвет».
+  /// Выровнено по индексам с [clearedRows].
+  final List<List<Tetromino>> clearedCells;
   final int gained;
   final bool gameOver;
   final bool tetris;
@@ -199,10 +204,12 @@ class TetrisLogic {
     }
 
     final clearedRows = <int>[];
+    final clearedCells = <List<Tetromino>>[];
     final kept = <List<Tetromino?>>[];
     for (var y = 0; y < rows; y++) {
       if (board[y].every((c) => c != null)) {
         clearedRows.add(y);
+        clearedCells.add([for (final c in board[y]) c!]);
       } else {
         kept.add(board[y]);
       }
@@ -232,6 +239,7 @@ class TetrisLogic {
 
     return LockResult(
       clearedRows: clearedRows,
+      clearedCells: clearedCells,
       gained: gained,
       gameOver: dead,
       tetris: isTetris,

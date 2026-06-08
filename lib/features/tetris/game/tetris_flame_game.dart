@@ -147,9 +147,10 @@ class TetrisFlameGame extends FlameGame {
   }
 
   void _onLinesCleared(LockResult res) {
-    for (final y in res.clearedRows) {
+    for (var i = 0; i < res.clearedRows.length; i++) {
+      final y = res.clearedRows[i];
       _rowFlashes.add(_RowFlash(row: y));
-      _spawnRowBurst(y);
+      _spawnRowBurst(y, res.clearedCells[i]);
     }
 
     _shake = max(_shake, 0.4 + res.cleared * 0.18);
@@ -184,9 +185,9 @@ class TetrisFlameGame extends FlameGame {
 
   // ── Эффекты ───────────────────────────────────────────────────────────────
 
-  void _spawnRowBurst(int row) {
+  void _spawnRowBurst(int row, List<Tetromino> cells) {
     for (var x = 0; x < TetrisLogic.cols; x++) {
-      final base = tetrominoColor(_logic.board[row][x] ?? Tetromino.t);
+      final base = tetrominoColor(cells[x]);
       for (var i = 0; i < 3; i++) {
         final a = _rng.nextDouble() * 2 * pi;
         final speed = 60 + _rng.nextDouble() * 160;
