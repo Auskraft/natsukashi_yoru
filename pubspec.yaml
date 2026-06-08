@@ -51,6 +51,37 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # Генераторы иконки приложения и нативного сплэш-экрана.
+  flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.14.1
+
+# ── Иконка приложения (dart run flutter_launcher_icons) ──────────────────────
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21
+  # Адаптивная иконка: фон под цвет тёмных углов картинки (бесшовно с инсетом);
+  # форплан — та же картинка.
+  adaptive_icon_background: "#000107"
+  adaptive_icon_foreground: "assets/icon/icon.png"
+
+# ── Сплэш-экран (dart run flutter_native_splash:create) ──────────────────────
+# Фон под цвет тёмных краёв картинки, чтобы нативный сплэш переходил бесшовно
+# в полноэкранный SplashApp (BoxFit.cover) внутри приложения.
+flutter_native_splash:
+  color: "#000107"
+  image: assets/icon/splash.png
+  android: true
+  ios: false
+
+  android_12:
+    # blank.png (прозрачный) скрывает иконку, которую Android 12+ показывает
+    # принудительно; фон заливается color, поверх — наш SplashApp.
+    color: "#000107"
+    image: assets/icon/blank.png
+    icon_background_color: "#000107"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -61,6 +92,10 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    # В рантайме нужен только сплэш; icon.png/blank.png — вход для генераторов.
+    - assets/icon/splash.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
