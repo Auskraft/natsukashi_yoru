@@ -35,6 +35,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Игровой движок и сопутствующее
+  flame: ^1.18.0              # игровой движок (GameLoop, рендер, ввод)
+  flame_audio: ^2.10.2       # звуки и музыка
+  shared_preferences: ^2.3.2 # сохранение прогресса/рекордов
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

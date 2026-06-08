@@ -1,30 +1,26 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Дымовой тест каркаса: меню рисует карточки всех игр из реестра.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:natsukashi_yoru/main.dart';
+import 'package:natsukashi_yoru/features/menu/game_catalog.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Меню показывает все 6 игр из каталога', (tester) async {
+    await tester.pumpWidget(const NatsukashiYoruApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Natsukashi Yoru'), findsOneWidget);
+    expect(kGameCatalog.length, 6);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // GridView ленивый — скроллим до каждой карточки (нижние за вьюпортом).
+    for (final entry in kGameCatalog) {
+      await tester.scrollUntilVisible(
+        find.text(entry.title),
+        120,
+        scrollable: find.byType(Scrollable),
+      );
+      expect(find.text(entry.title), findsOneWidget);
+    }
   });
 }
