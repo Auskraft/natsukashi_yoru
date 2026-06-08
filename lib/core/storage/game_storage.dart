@@ -36,6 +36,21 @@ class GameStorage {
     return false;
   }
 
+  // ── Лучшее время (меньше — лучше; для игр на скорость, напр. сапёр) ───────
+
+  /// Лучшее время в секундах или 0, если рекорда ещё нет.
+  int bestTime(String gameId) => _prefs.getInt('bt_$gameId') ?? 0;
+
+  /// Сохраняет время, если оно лучше прежнего (или первое). true — новый рекорд.
+  Future<bool> submitTime(String gameId, int seconds) async {
+    final prev = bestTime(gameId);
+    if (prev == 0 || seconds < prev) {
+      await _prefs.setInt('bt_$gameId', seconds);
+      return true;
+    }
+    return false;
+  }
+
   // ── Дневной стрик ────────────────────────────────────────────────────────
 
   int get streak => _prefs.getInt('streak') ?? 0;
