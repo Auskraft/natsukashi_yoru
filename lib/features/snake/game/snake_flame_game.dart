@@ -31,12 +31,20 @@ class SnakeFlameGame extends FlameGame {
   // Наблюдаемое для оверлеев/HUD.
   final ValueNotifier<int> score = ValueNotifier(0);
   final ValueNotifier<int> combo = ValueNotifier(0);
+  final ValueNotifier<int> length = ValueNotifier(3);
+  final ValueNotifier<double> speed = ValueNotifier(1);
+  final ValueNotifier<double> fps = ValueNotifier(0);
   final ValueNotifier<SnakePhase> phase = ValueNotifier(SnakePhase.ready);
 
-  // Тайминг шага.
+  // Тайминг шага: старт спокойнее, разгон мягче (фидбек: «уровень 1 быстроват»).
   double _acc = 0;
-  static const double _baseStep = 0.16;
-  static const double _minStep = 0.07;
+  static const double _baseStep = 0.2;
+  static const double _minStep = 0.09;
+
+  // Резерв сверху под HUD и снизу под строку статистики, чтобы поле не
+  // налезало на оверлеи и низ не пустовал.
+  static const double _topInset = 76;
+  static const double _bottomInset = 48;
 
   // Комбо.
   double _sinceEat = 0;
@@ -49,17 +57,23 @@ class SnakeFlameGame extends FlameGame {
   double _flash = 0;
   double _foodPulse = 0;
 
+  // Сглаженный FPS для отладочного индикатора.
+  double _fpsAcc = 0;
+  int _fpsFrames = 0;
+
   // Геометрия поля (считается в render по текущему размеру).
   double _cell = 0;
   Offset _origin = Offset.zero;
 
   double get _stepInterval =>
-      max(_minStep, _baseStep - _logic.length * 0.0025);
+      max(_minStep, _baseStep - _logic.length * 0.0018);
 
   void start() {
     _logic.reset();
     score.value = 0;
     combo.value = 0;
+    length.value = _logic.length;
+    speed.value = 1;
     _acc = 0;
     _sinceEat = 0;
     _sparks.clear();
@@ -79,6 +93,15 @@ class SnakeFlameGame extends FlameGame {
   @override
   void update(double dt) {
     super.update(dt);
+
+    _fpsFrames++;
+    _fpsAcc += dt;
+    if (_fpsAcc >= 0.5) {
+      fps.value = _fpsFrames / _fpsAcc;
+      _fpsFrames = 0;
+      _fpsAcc = 0;
+    }
+
     _foodPulse = (_foodPulse + dt * 4) % (2 * pi);
     _advanceEffects(dt);
 
@@ -110,6 +133,8 @@ class SnakeFlameGame extends FlameGame {
     _sinceEat = 0;
     final gain = combo.value;
     score.value += gain;
+    length.value = _logic.length;
+    speed.value = _baseStep / _stepInterval;
 
     _spawnBurst(_logic.head, gain);
     _popups.add(_Popup(cell: _logic.head, text: '+$gain', combo: combo.value));
@@ -125,11 +150,13 @@ class SnakeFlameGame extends FlameGame {
   }
 
   void _onDeath() {
-    phase.value = SnakePhase.dead;
     _shake = 1;
     _flash = 1;
     Haptics.heavy();
+    // Сначала отдать счёт (экран посчитает рекорд и обновит данные оверлея),
+    // затем сменить фазу — оверлей построится уже с верными цифрами.
     onGameOver(score.value);
+    phase.value = SnakePhase.dead;
   }
 
   // ── Эффекты ────────────────────────────────────────────────────────────
@@ -203,10 +230,11 @@ class SnakeFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    _cell = min(size.x / cols, size.y / rows);
+    final availH = size.y - _topInset - _bottomInset;
+    _cell = min(size.x / cols, availH / rows);
     final w = _cell * cols;
     final h = _cell * rows;
-    _origin = Offset((size.x - w) / 2, (size.y - h) / 2);
+    _origin = Offset((size.x - w) / 2, _topInset + (availH - h) / 2);
   }
 
   Offset _cellCenter(Point<int> c) => _origin +

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
 
 import 'core/storage/game_storage.dart';
 import 'core/theme/app_theme.dart';
@@ -7,14 +8,25 @@ import 'features/menu/menu_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Сразу показываем сплэш, параллельно грузим хранилище.
+  // Сразу показываем сплэш, параллельно грузим хранилище и поднимаем герцовку.
   runApp(const SplashApp());
   await Future.wait([
     GameStorage.init(),
+    _enableHighRefreshRate(),
     Future<void>.delayed(const Duration(milliseconds: 1500)),
   ]);
 
   runApp(const NatsukashiYoruApp());
+}
+
+/// Просит у системы максимальный режим экрана (90/120/144 Гц). Только Android;
+/// на неподдерживаемых устройствах тихо игнорируется.
+Future<void> _enableHighRefreshRate() async {
+  try {
+    await FlutterDisplayMode.setHighRefreshRate();
+  } catch (_) {
+    // Платформа не поддерживает — остаёмся на 60 Гц.
+  }
 }
 
 /// Полноэкранный сплэш на время загрузки. Та же картинка, что и в нативном

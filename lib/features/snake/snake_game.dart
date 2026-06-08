@@ -8,8 +8,11 @@ import 'components/snake_logic.dart';
 import 'game/snake_flame_game.dart';
 import 'ui/snake_overlays.dart';
 
-/// Точка входа фичи «Snake»: хостит [SnakeFlameGame], ловит свайпы,
-/// управляет оверлеями и пишет рекорд/стрик в [GameStorage].
+/// Точка входа фичи «Snake»: хостит [SnakeFlameGame], ловит свайпы и рисует
+/// поверх игры оверлей по текущей фазе. Рекорд/стрик пишутся в [GameStorage].
+///
+/// Оверлеи — обычный Flutter `Stack`, переключаемый по [SnakeFlameGame.phase].
+/// Так исключено наложение экранов (раньше rebuild возвращал стартовый оверлей).
 class SnakeScreen extends StatefulWidget {
   const SnakeScreen({super.key});
 
@@ -31,34 +34,6 @@ class _SnakeScreenState extends State<SnakeScreen> {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
     _game = SnakeFlameGame(onGameOver: _handleGameOver);
-    _game.phase.addListener(_onPhase);
-  }
-
-  @override
-  void dispose() {
-    _game.phase.removeListener(_onPhase);
-    super.dispose();
-  }
-
-  void _onPhase() {
-    switch (_game.phase.value) {
-      case SnakePhase.ready:
-        _setOverlays({'ready'});
-      case SnakePhase.running:
-        _setOverlays({'hud'});
-      case SnakePhase.dead:
-        // Оверлей конца игры показывает _handleGameOver (после подсчёта рекорда).
-        break;
-    }
-  }
-
-  void _setOverlays(Set<String> names) {
-    for (final n in List<String>.from(_game.overlays.activeOverlays)) {
-      _game.overlays.remove(n);
-    }
-    for (final n in names) {
-      _game.overlays.add(n);
-    }
   }
 
   void _handleGameOver(int score) {
@@ -71,7 +46,6 @@ class _SnakeScreenState extends State<SnakeScreen> {
       _isRecord = record;
       _best = record ? score : prevBest;
     });
-    _setOverlays({'gameover'});
 
     // Персист — не блокирует показ оверлея.
     unawaited(storage.submitScore(_gameId, score));
@@ -94,20 +68,31 @@ class _SnakeScreenState extends State<SnakeScreen> {
       body: GestureDetector(
         onPanStart: (_) => _drag = Offset.zero,
         onPanUpdate: _onPanUpdate,
-        child: GameWidget<SnakeFlameGame>(
-          game: _game,
-          overlayBuilderMap: {
-            'hud': (_, game) => SnakeHud(game: game, best: _best),
-            'ready': (_, game) => SnakeReadyOverlay(onStart: game.start),
-            'gameover': (_, _) => SnakeGameOverOverlay(
-                  score: _lastScore,
-                  best: _best,
-                  isRecord: _isRecord,
-                  onRetry: _game.start,
-                  onExit: () => Navigator.of(context).pop(),
-                ),
-          },
-          initialActiveOverlays: const ['ready'],
+        child: Stack(
+          children: [
+            GameWidget<SnakeFlameGame>(game: _game),
+            Positioned.fill(
+              child: ValueListenableBuilder<SnakePhase>(
+                valueListenable: _game.phase,
+                builder: (context, phase, _) {
+                  switch (phase) {
+                    case SnakePhase.ready:
+                      return SnakeReadyOverlay(onStart: _game.start);
+                    case SnakePhase.running:
+                      return SnakeHud(game: _game, best: _best);
+                    case SnakePhase.dead:
+                      return SnakeGameOverOverlay(
+                        score: _lastScore,
+                        best: _best,
+                        isRecord: _isRecord,
+                        onRetry: _game.start,
+                        onExit: () => Navigator.of(context).pop(),
+                      );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

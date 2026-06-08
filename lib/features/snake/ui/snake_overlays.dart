@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import '../game/snake_flame_game.dart';
 
-/// Верхний HUD: текущий счёт, рекорд и индикатор комбо.
+/// HUD: сверху счёт/рекорд/комбо, снизу — ненавязчивая статистика
+/// (длина, скорость и FPS в debug-сборке).
 class SnakeHud extends StatelessWidget {
   const SnakeHud({super.key, required this.game, required this.best});
 
@@ -14,36 +16,70 @@ class SnakeHud extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
           children: [
-            ValueListenableBuilder<int>(
-              valueListenable: game.score,
-              builder: (_, score, _) => _Stat(
-                label: 'СЧЁТ',
-                value: '$score',
-                color: Colors.white,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ValueListenableBuilder<int>(
+                  valueListenable: game.score,
+                  builder: (_, score, _) => _Stat(
+                    label: 'СЧЁТ',
+                    value: '$score',
+                    color: Colors.white,
+                  ),
+                ),
+                ValueListenableBuilder<int>(
+                  valueListenable: game.combo,
+                  builder: (_, combo, _) => AnimatedScale(
+                    scale: combo >= 2 ? 1 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutBack,
+                    child: _ComboBadge(combo: combo),
+                  ),
+                ),
+                _Stat(
+                  label: 'РЕКОРД',
+                  value: '$best',
+                  color: const Color(0xFFFFD54F),
+                  alignEnd: true,
+                ),
+              ],
             ),
-            ValueListenableBuilder<int>(
-              valueListenable: game.combo,
-              builder: (_, combo, _) => AnimatedScale(
-                scale: combo >= 2 ? 1 : 0,
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOutBack,
-                child: _ComboBadge(combo: combo),
-              ),
-            ),
-            _Stat(
-              label: 'РЕКОРД',
-              value: '$best',
-              color: const Color(0xFFFFD54F),
-              alignEnd: true,
-            ),
+            const Spacer(),
+            _BottomReadout(game: game),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Нижняя строка статистики. Заполняет ранее пустовавший низ поля.
+class _BottomReadout extends StatelessWidget {
+  const _BottomReadout({required this.game});
+
+  final SnakeFlameGame game;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      color: Colors.white.withValues(alpha: 0.35),
+      fontSize: 12,
+      letterSpacing: 1.5,
+      fontWeight: FontWeight.w700,
+    );
+    return AnimatedBuilder(
+      animation: Listenable.merge([game.length, game.speed, game.fps]),
+      builder: (_, _) {
+        final parts = <String>[
+          'ДЛИНА ${game.length.value}',
+          'СКОРОСТЬ ×${game.speed.value.toStringAsFixed(1)}',
+          if (kDebugMode) '${game.fps.value.round()} FPS',
+        ];
+        return Text(parts.join('     ·     '), style: style);
+      },
     );
   }
 }
