@@ -140,10 +140,8 @@ class SnakeFlameGame extends FlameGame {
     _popups.add(_Popup(cell: _logic.head, text: '+$gain', combo: combo.value));
     _foodPulse = 0;
 
-    if (combo.value >= 4) {
-      Haptics.heavy();
-    } else if (combo.value >= 2) {
-      Haptics.medium();
+    if (combo.value >= 2) {
+      Haptics.combo(combo.value); // особый нарастающий паттерн на комбо
     } else {
       Haptics.light();
     }
