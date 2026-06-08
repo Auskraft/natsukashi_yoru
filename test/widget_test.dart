@@ -2,11 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:natsukashi_yoru/main.dart';
+import 'package:natsukashi_yoru/core/storage/game_storage.dart';
 import 'package:natsukashi_yoru/features/menu/game_catalog.dart';
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    await GameStorage.init();
+  });
+
   testWidgets('Меню показывает все 6 игр из каталога', (tester) async {
     await tester.pumpWidget(const NatsukashiYoruApp());
 

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'core/storage/game_storage.dart';
 import 'core/theme/app_theme.dart';
 import 'features/menu/menu_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GameStorage.init();
   runApp(const NatsukashiYoruApp());
 }
 
