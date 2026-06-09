@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 
+import 'core/legal/legal_screens.dart';
 import 'core/storage/game_storage.dart';
 import 'core/theme/app_theme.dart';
 import 'features/menu/menu_screen.dart';
@@ -51,10 +54,22 @@ class SplashApp extends StatelessWidget {
   }
 }
 
-/// Корень приложения. Тема собирается из палитры (см. [AppTheme]),
-/// стартовый экран — главное меню выбора игры.
-class NatsukashiYoruApp extends StatelessWidget {
+/// Корень приложения. Тема собирается из палитры (см. [AppTheme]). При первом
+/// запуске показывается экран согласия с документами, далее — главное меню.
+class NatsukashiYoruApp extends StatefulWidget {
   const NatsukashiYoruApp({super.key});
+
+  @override
+  State<NatsukashiYoruApp> createState() => _NatsukashiYoruAppState();
+}
+
+class _NatsukashiYoruAppState extends State<NatsukashiYoruApp> {
+  late bool _consent = GameStorage.instance.consentAccepted;
+
+  void _acceptConsent() {
+    unawaited(GameStorage.instance.acceptConsent());
+    setState(() => _consent = true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +77,9 @@ class NatsukashiYoruApp extends StatelessWidget {
       title: 'Natsukashi Yoru',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.night,
-      home: const MenuScreen(),
+      home: _consent
+          ? const MenuScreen()
+          : ConsentScreen(onAccept: _acceptConsent),
     );
   }
 }

@@ -10,7 +10,8 @@ import 'package:natsukashi_yoru/features/menu/game_catalog.dart';
 
 void main() {
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    // Согласие уже принято — пропускаем стартовый экран согласия, сразу лобби.
+    SharedPreferences.setMockInitialValues({'consent_accepted_v1': true});
     await GameStorage.init();
   });
 

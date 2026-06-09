@@ -36,6 +36,16 @@ class GameStorage {
     return false;
   }
 
+  // ── Согласие с документами (показ экрана согласия при первом запуске) ─────
+
+  static const String _consentKey = 'consent_accepted_v1';
+
+  /// Принял ли пользователь документы (соглашение/политику).
+  bool get consentAccepted => _prefs.getBool(_consentKey) ?? false;
+
+  /// Зафиксировать принятие документов.
+  Future<void> acceptConsent() => _prefs.setBool(_consentKey, true);
+
   // ── Лучшее время (меньше — лучше; для игр на скорость, напр. сапёр) ───────
 
   /// Лучшее время в секундах или 0, если рекорда ещё нет.

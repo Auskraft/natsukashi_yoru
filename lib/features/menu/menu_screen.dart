@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/legal/legal_screens.dart';
 import '../../core/storage/game_storage.dart';
 import 'game_catalog.dart';
 
@@ -80,9 +81,18 @@ class _MenuScreenState extends State<MenuScreen>
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(14, 4, 14, 24),
-                    itemCount: kGameCatalog.length,
+                    itemCount: kGameCatalog.length + 1,
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
+                      if (i == kGameCatalog.length) {
+                        return _DocsFooter(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const DocsScreen(),
+                            ),
+                          ),
+                        );
+                      }
                       final entry = kGameCatalog[i];
                       return _GameCard(
                         entry: entry,
@@ -146,6 +156,49 @@ class _Header extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Пункт «Документы · О приложении» внизу списка игр.
+class _DocsFooter extends StatelessWidget {
+  const _DocsFooter({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0x08FFFFFF),
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0x12FFFFFF)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            children: [
+              const Text('📄', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Документы · О приложении',
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: _textSecondary,
+                  ),
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 18, color: _textMuted),
+            ],
+          ),
+        ),
       ),
     );
   }
