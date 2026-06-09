@@ -84,7 +84,7 @@ class BubbleShooterFlameGame extends FlameGame {
   int _fpsFrames = 0;
 
   // Геометрия поля (считается в render по текущему размеру).
-  static const double _topInset = 96;
+  static const double _topInset = 150; // место под HUD (счёт/рекорд/пауза)
   static const double _bottomInset = 96; // место под пушку
   double _scale = 0; // пикселей на «диаметр пузыря»
   Offset _origin = Offset.zero;
@@ -557,9 +557,11 @@ class BubbleShooterFlameGame extends FlameGame {
       py = ny;
 
       if (targetCenter != null) {
-        final dx = targetCenter.x - px;
-        final dy = targetCenter.y - py;
-        if (dx * dx + dy * dy <= 0.04) break;
+        // Дошли до уровня целевого ряда (пузырь летит вверх, py убывает) —
+        // финальным узлом подставим центр цели. Гарантирует короткий путь и
+        // снимает «зависание»: прямой путь мог не попасть в окрестность
+        // смещённой ячейки и тянуть до maxSteps (полёт на десятки секунд).
+        if (py <= targetCenter.y) break;
       } else if (py <= BubbleShooterLogic.radius) {
         break;
       }

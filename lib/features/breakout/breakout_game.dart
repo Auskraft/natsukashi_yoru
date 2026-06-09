@@ -33,6 +33,18 @@ class _BreakoutScreenState extends State<BreakoutScreen> {
     _game = BreakoutFlameGame(onGameOver: _handleGameOver);
   }
 
+  @override
+  void dispose() {
+    // Сохранить рекорд и при выходе живым: счёт копится по уровням, а game over
+    // может не наступить (игрок ушёл в меню) — иначе прогресс терялся бы.
+    final s = _game.score.value;
+    if (s > 0) {
+      unawaited(GameStorage.instance.submitScore(_gameId, s));
+      unawaited(GameStorage.instance.registerPlay(DateTime.now()));
+    }
+    super.dispose();
+  }
+
   void _handleGameOver(int score) {
     final storage = GameStorage.instance;
     final prevBest = storage.highScore(_gameId);
