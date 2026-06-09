@@ -1,0 +1,35 @@
+# Единые переносы строк в репозитории (хранится LF; в рабочей копии — как у ОС).
+* text=auto
+
+# Скрипты под конкретную ОС.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+gradlew text eol=lf
+
+# Бинарные ассеты — Git их не трогает.
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.ico      binary
+*.webp     binary
+*.ttf      binary
+*.otf      binary
+*.jar      binary
+*.keystore binary
+
+# ── GitHub Linguist ─────────────────────────────────────────────────────────
+# Это Dart/Flutter-проект. Сгенерированный платформенный скаффолд (android, ios,
+# desktop, web) — не наш исходный код, поэтому исключаем его из статистики языков,
+# чтобы репозиторий определялся как Dart, а не как C++/CMake/Swift.
+android/**  linguist-vendored
+ios/**      linguist-vendored
+linux/**    linguist-vendored
+macos/**    linguist-vendored
+windows/**  linguist-vendored
+web/**      linguist-vendored
+
+# Сгенерированный Dart-код (если появится) — тоже мимо статистики.
+*.g.dart      linguist-generated
+*.freezed.dart linguist-generated
