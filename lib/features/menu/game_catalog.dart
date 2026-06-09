@@ -15,125 +15,189 @@ import '../stack_tower/stack_tower_game.dart';
 import '../tetris/tetris_game.dart';
 import '../whack_a_mole/whack_a_mole_game.dart';
 
-/// Описание одной игры для главного меню.
+/// Сложность игры (для бейджа в лобби). Цвета — из дизайн-хэндоффа.
+enum Difficulty {
+  easy('Easy', Color(0xFF34D399)),
+  medium('Medium', Color(0xFFFBBF24)),
+  hard('Hard', Color(0xFFF87171));
+
+  const Difficulty(this.label, this.color);
+  final String label;
+  final Color color;
+}
+
+/// По какому показателю у игры «рекорд» (как форматировать в лобби).
+enum GameMetric {
+  /// Очки (больше — лучше): `GameStorage.highScore`.
+  score,
+
+  /// Время победы в секундах (меньше — лучше): `GameStorage.bestTime`.
+  time,
+
+  /// Число ходов (меньше — лучше): `GameStorage.bestTime`.
+  moves,
+}
+
+/// Описание одной игры для лобби.
 class GameEntry {
   const GameEntry({
     required this.id,
     required this.title,
+    required this.nameJp,
     required this.icon,
-    required this.color,
+    required this.accent,
+    required this.difficulty,
     required this.builder,
+    this.metric = GameMetric.score,
   });
 
-  /// Стабильный ключ для хранилища рекордов (`GameStorage`).
+  /// Стабильный ключ для хранилища рекордов (`GameStorage`) и имени папки.
   final String id;
   final String title;
+
+  /// Японское название (для подписи в карточке).
+  final String nameJp;
   final IconData icon;
-  final Color color;
+
+  /// Акцентный цвет игры (иконка, свечение карточки, значение рекорда).
+  final Color accent;
+  final Difficulty difficulty;
+  final GameMetric metric;
 
   /// Конструктор экрана-входа фичи.
   final WidgetBuilder builder;
 }
 
-/// Реестр всех игр. Единственный источник правды для меню — добавление новой
+/// Реестр всех игр. Единственный источник правды для лобби — добавление новой
 /// игры сводится к одной записи здесь.
 const List<GameEntry> kGameCatalog = [
   GameEntry(
     id: 'snake',
     title: 'Snake',
+    nameJp: 'スネーク',
     icon: Icons.gesture,
-    color: Color(0xFF4ECDC4),
+    accent: Color(0xFF34D399),
+    difficulty: Difficulty.medium,
     builder: _snake,
   ),
   GameEntry(
     id: 'tetris',
     title: 'Tetris',
+    nameJp: 'テトリス',
     icon: Icons.view_module,
-    color: Color(0xFF7C5CFF),
+    accent: Color(0xFF818CF8),
+    difficulty: Difficulty.hard,
     builder: _tetris,
   ),
   GameEntry(
     id: 'match3',
     title: 'Match3',
+    nameJp: 'マッチ3',
     icon: Icons.grid_view,
-    color: Color(0xFFFF6FAE),
+    accent: Color(0xFFF472B6),
+    difficulty: Difficulty.easy,
     builder: _match3,
   ),
   GameEntry(
     id: 'bejeweled',
     title: 'Bejeweled',
+    nameJp: 'ジュエル',
     icon: Icons.diamond,
-    color: Color(0xFF4ECDC4),
+    accent: Color(0xFF22D3EE),
+    difficulty: Difficulty.hard,
     builder: _bejeweled,
   ),
   GameEntry(
     id: 'puyo_puyo',
     title: 'Puyo Puyo',
+    nameJp: 'ぷよぷよ',
     icon: Icons.bubble_chart,
-    color: Color(0xFFFF6FAE),
+    accent: Color(0xFFFBBF24),
+    difficulty: Difficulty.medium,
     builder: _puyo,
   ),
   GameEntry(
     id: 'minesweeper',
     title: 'Minesweeper',
+    nameJp: '地雷',
     icon: Icons.flag,
-    color: Color(0xFF7C5CFF),
+    accent: Color(0xFFF87171),
+    difficulty: Difficulty.medium,
+    metric: GameMetric.time,
     builder: _mines,
   ),
   GameEntry(
     id: 'game2048',
     title: '2048',
+    nameJp: '数字',
     icon: Icons.grid_4x4,
-    color: Color(0xFFFFD54F),
+    accent: Color(0xFFFFD54F),
+    difficulty: Difficulty.medium,
     builder: _game2048,
   ),
   GameEntry(
     id: 'block_puzzle',
     title: '1010!',
+    nameJp: 'ブロック',
     icon: Icons.dashboard,
-    color: Color(0xFF4ECDC4),
+    accent: Color(0xFF38BDF8),
+    difficulty: Difficulty.easy,
     builder: _blockPuzzle,
   ),
   GameEntry(
     id: 'bubble_shooter',
     title: 'Bubble Shooter',
+    nameJp: 'バブル',
     icon: Icons.scatter_plot,
-    color: Color(0xFFFF6FAE),
+    accent: Color(0xFFFB7185),
+    difficulty: Difficulty.medium,
     builder: _bubbleShooter,
   ),
   GameEntry(
     id: 'stack_tower',
     title: 'Stack',
+    nameJp: 'タワー',
     icon: Icons.layers,
-    color: Color(0xFF5CE08A),
+    accent: Color(0xFF4ADE80),
+    difficulty: Difficulty.easy,
     builder: _stackTower,
   ),
   GameEntry(
     id: 'whack_a_mole',
     title: 'Whack-a-Mole',
+    nameJp: 'モグラ',
     icon: Icons.sports_mma,
-    color: Color(0xFFFF9F45),
+    accent: Color(0xFFFB923C),
+    difficulty: Difficulty.easy,
     builder: _whackAMole,
   ),
   GameEntry(
     id: 'lights_out',
     title: 'Lights Out',
+    nameJp: 'ライト',
     icon: Icons.lightbulb,
-    color: Color(0xFFA78BFA),
+    accent: Color(0xFFA78BFA),
+    difficulty: Difficulty.medium,
+    metric: GameMetric.moves,
     builder: _lightsOut,
   ),
   GameEntry(
     id: 'breakout',
     title: 'Breakout',
+    nameJp: 'ブロック崩し',
     icon: Icons.sports_tennis,
-    color: Color(0xFF5C8CFF),
+    accent: Color(0xFF60A5FA),
+    difficulty: Difficulty.medium,
     builder: _breakout,
   ),
   GameEntry(
     id: 'sokoban',
     title: 'Sokoban',
+    nameJp: '倉庫番',
     icon: Icons.warehouse,
-    color: Color(0xFF22D3EE),
+    accent: Color(0xFF2DD4BF),
+    difficulty: Difficulty.hard,
+    metric: GameMetric.moves,
     builder: _sokoban,
   ),
 ];
