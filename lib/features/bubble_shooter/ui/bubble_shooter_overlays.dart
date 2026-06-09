@@ -75,9 +75,10 @@ class _BottomReadout extends StatelessWidget {
       fontWeight: FontWeight.w700,
     );
     return AnimatedBuilder(
-      animation: Listenable.merge([game.bubbles, game.fps]),
+      animation: Listenable.merge([game.level, game.bubbles, game.fps]),
       builder: (_, _) {
         final parts = <String>[
+          'УРОВЕНЬ ${game.level.value}',
           'ПУЗЫРЕЙ ${game.bubbles.value}',
           if (kDebugMode) '${game.fps.value.round()} FPS',
         ];

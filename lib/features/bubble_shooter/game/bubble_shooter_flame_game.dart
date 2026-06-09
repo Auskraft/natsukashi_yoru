@@ -44,6 +44,7 @@ class BubbleShooterFlameGame extends FlameGame {
   final ValueNotifier<int> score = ValueNotifier(0);
   final ValueNotifier<int> combo = ValueNotifier(0);
   final ValueNotifier<int> bubbles = ValueNotifier(0);
+  final ValueNotifier<int> level = ValueNotifier(1);
   final ValueNotifier<double> fps = ValueNotifier(0);
   final ValueNotifier<BubbleShooterPhase> phase =
       ValueNotifier(BubbleShooterPhase.ready);
@@ -94,6 +95,7 @@ class BubbleShooterFlameGame extends FlameGame {
     score.value = 0;
     combo.value = 0;
     bubbles.value = _logic.bubbleCount;
+    level.value = _logic.level;
     _aimAngle = 0;
     _shot = null;
     _shotColor = null;
@@ -244,6 +246,21 @@ class BubbleShooterFlameGame extends FlameGame {
       } else {
         Haptics.medium();
       }
+    }
+
+    if (result.boardCleared) {
+      level.value = result.level;
+      _flash = max(_flash, 0.6);
+      _flashColor = const Color(0xFF5CE08A);
+      _shake = max(_shake, 0.5);
+      _popups.add(_Popup(
+        gridX: _logic.fieldWidth / 2,
+        gridY: 3,
+        text: 'УРОВЕНЬ ${result.level}!',
+        color: const Color(0xFFFFD54F),
+        big: true,
+      ));
+      Haptics.combo(5);
     }
 
     if (result.gameOver) _onGameOver();

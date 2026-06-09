@@ -63,6 +63,8 @@ class ShotResult {
     required this.dropped,
     required this.gained,
     required this.gameOver,
+    this.boardCleared = false,
+    this.level = 1,
   });
 
   /// Ячейка, в которую прилип выпущенный пузырь (его исходная позиция).
@@ -81,11 +83,17 @@ class ShotResult {
   /// падения. Пусто, если ничего не оторвалось.
   final List<DroppedBubble> dropped;
 
-  /// Очки за выстрел: лопнутые + упавшие (упавшие дороже).
+  /// Очки за выстрел: лопнутые + упавшие (+ бонус за очистку поля).
   final int gained;
 
   /// Достиг ли какой-либо пузырь нижней линии после выстрела — конец партии.
   final bool gameOver;
+
+  /// Поле полностью очищено этим выстрелом — переход на следующий уровень.
+  final bool boardCleared;
+
+  /// Текущий номер уровня (растёт при очистке поля).
+  final int level;
 
   /// Удалось ли вообще прилепить пузырь к полю.
   bool get didLand => landed != null;
@@ -150,8 +158,14 @@ class BubbleShooterLogic {
   /// Накопленные очки за партию.
   int score = 0;
 
+  /// Текущий уровень (растёт при полной очистке поля). Счёт при этом не сбрасывается.
+  int level = 1;
+
   /// Партия окончена (пузырь достиг нижней линии).
   bool gameOver = false;
+
+  /// Бонус за очистку поля (× номер нового уровня) — щедрая награда.
+  static const int clearBonus = 300;
 
   /// Очки за один лопнутый пузырь.
   static const int popPoints = 10;
@@ -166,18 +180,24 @@ class BubbleShooterLogic {
   /// пусто; обновить пушку и обнулить счёт.
   void reset() {
     score = 0;
+    level = 1;
     gameOver = false;
     grid = List.generate(
       rows,
       (row) => List<Bubble?>.filled(colsInRow(row), null),
     );
-    for (var row = 0; row < startRows; row++) {
+    _fillTopRows(startRows);
+    current = _randomBubbleOnField();
+    next = _randomBubbleOnField();
+  }
+
+  /// Заполнить верхние [count] рядов случайными цветами (нижние — пусто).
+  void _fillTopRows(int count) {
+    for (var row = 0; row < count; row++) {
       for (var col = 0; col < colsInRow(row); col++) {
         grid[row][col] = _randomBubble();
       }
     }
-    current = _randomBubbleOnField();
-    next = _randomBubbleOnField();
   }
 
   /// Цвет в ячейке или null (пусто/вне поля).
@@ -454,7 +474,22 @@ class BubbleShooterLogic {
       gained += floating.length * dropPoints;
     }
 
+    // Полная очистка поля → следующий уровень (счёт сохраняется + щедрый бонус).
+    var boardCleared = false;
+    if (bubbleCount == 0) {
+      boardCleared = true;
+      level++;
+      gained += clearBonus * level;
+    }
+
     score += gained;
+
+    // Новую раскладку наполняем ПОСЛЕ проверки пустоты и начисления бонуса.
+    // С уровнями добавляем по ряду (мягко, с потолком до линии проигрыша).
+    if (boardCleared) {
+      final fillRows = min(startRows + (level - 1) ~/ 2, rows - 6);
+      _fillTopRows(fillRows < startRows ? startRows : fillRows);
+    }
 
     final over = _reachedBottom();
     if (over) gameOver = true;
@@ -466,6 +501,8 @@ class BubbleShooterLogic {
       dropped: dropped,
       gained: gained,
       gameOver: over,
+      boardCleared: boardCleared,
+      level: level,
     );
   }
 

@@ -151,6 +151,7 @@ void main() {
       // Два красных в верхнем ряду рядом; третий «прилетает» между/рядом.
       g.grid[0][3] = red;
       g.grid[0][5] = red;
+      g.grid[0][0] = blue; // запасной якорный — поле не опустеет (изолируем счёт)
       // (0,4) — общий сосед (0,3) и (0,5) в чётном ряду по горизонтали.
       final res = g.placeAndResolve(const HexCell(0, 4), red);
 
@@ -165,8 +166,9 @@ void main() {
       // Очки = 3 * popPoints (висящих нет — все были в верхнем ряду).
       expect(res.gained, 3 * BubbleShooterLogic.popPoints);
       expect(g.score, res.gained);
-      // Поле снова пустое — все три убраны.
-      expect(count(g), 0);
+      expect(res.boardCleared, isFalse, reason: 'остался запасной пузырь');
+      // Лопнули три; остался запасной (поле не очищено → без бонуса за уровень).
+      expect(count(g), 1);
     });
 
     test('кластер из двух НЕ лопается', () {
@@ -201,6 +203,7 @@ void main() {
       // Мост из красных в верхнем ряду: (0,3),(0,5) + прилетающий (0,4) -> лопнут.
       g.grid[0][3] = red;
       g.grid[0][5] = red;
+      g.grid[0][0] = green; // запасной якорный — поле не опустеет (изолируем счёт)
       // Синий «висит» только на (0,4)-через-сцепку: подвесим его под красным мостом
       // так, чтобы после лопания он остался без связи с верхним рядом.
       // (1,4) в нечётном ряду соседствует сверху с (0,4) и (0,5).
@@ -229,8 +232,31 @@ void main() {
       expect(BubbleShooterLogic.dropPoints,
           greaterThan(BubbleShooterLogic.popPoints));
 
-      // Поле опустело: 3 лопнули, 1 упал.
-      expect(count(g), 0);
+      // Лопнули 3 + упал 1; остался запасной пузырь (поле не очищено).
+      expect(count(g), 1);
+    });
+
+    test('полная очистка поля → следующий уровень и бонус', () {
+      final g = BubbleShooterLogic(random: Random(8));
+      clearField(g);
+      // На поле ровно один кластер — его лопание опустошит поле.
+      g.grid[0][3] = red;
+      g.grid[0][5] = red;
+      final levelBefore = g.level;
+
+      final res = g.placeAndResolve(const HexCell(0, 4), red);
+
+      expect(res.boardCleared, isTrue);
+      expect(g.level, levelBefore + 1);
+      expect(res.level, g.level);
+      // Очки = 3 лопнутых + бонус за очистку (× новый уровень).
+      expect(
+        res.gained,
+        3 * BubbleShooterLogic.popPoints +
+            BubbleShooterLogic.clearBonus * g.level,
+      );
+      // Поле наполнено новой раскладкой — не пустое.
+      expect(count(g), greaterThan(0));
     });
 
     test('связанный с верхом пузырь НЕ падает', () {
