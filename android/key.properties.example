@@ -1,0 +1,17 @@
+# Шаблон параметров подписи релиза.
+# Скопируйте этот файл в android/key.properties (он в .gitignore — в репозиторий
+# не попадёт) и заполните своими значениями.
+#
+# 1) Сгенерируйте хранилище ключей (один раз), например в папке android/app/:
+#      keytool -genkey -v -keystore upload-keystore.jks \
+#        -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#    ВАЖНО: храните .jks и пароли в надёжном месте — без них нельзя обновлять
+#    приложение в сторе.
+#
+# 2) Заполните значения ниже. storeFile — путь к .jks относительно android/app/
+#    (или абсолютный путь).
+
+storePassword=ПАРОЛЬ_ХРАНИЛИЩА
+keyPassword=ПАРОЛЬ_КЛЮЧА
+keyAlias=upload
+storeFile=upload-keystore.jks

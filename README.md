@@ -107,8 +107,9 @@ flutter test        # 220 тестов
 | [Flame](https://flame-engine.org) | игровой движок (рендер, game loop) |
 | [shared_preferences](https://pub.dev/packages/shared_preferences) | рекорды/стрик |
 | [flame_audio](https://pub.dev/packages/flame_audio) | звук |
-| [google_fonts](https://pub.dev/packages/google_fonts) | Space Grotesk + Noto Sans JP |
 | [flutter_displaymode](https://pub.dev/packages/flutter_displaymode) | высокая герцовка |
+
+Шрифт **Space Grotesk** забандлен локально (`assets/fonts/`) — приложение работает офлайн.
 
 ## 🗺️ Дорожная карта
 
@@ -116,7 +117,7 @@ flutter test        # 220 тестов
 - [ ] Реколор/скины темы (заложено в `core/theme/`)
 - [ ] Звуковое оформление и музыка
 - [ ] Экраны «Профиль»/«Ачивки» (прогрессия XP/уровень/ранг)
-- [ ] Локальный бандл шрифтов для оффлайна
+- [x] Локальный бандл шрифтов для оффлайна
 
 ## 🤝 Контрибьютинг
 

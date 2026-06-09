@@ -1,11 +1,31 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/legal/legal_screens.dart';
 import '../../core/storage/game_storage.dart';
 import 'game_catalog.dart';
+
+/// Стиль локального шрифта Space Grotesk (вариативный, бандлится с приложением).
+/// Вес задаётся через [FontVariation] оси `wght` — корректно для variable-шрифта.
+TextStyle _grotesk({
+  double? fontSize,
+  FontWeight? fontWeight,
+  Color? color,
+  double? letterSpacing,
+  double? height,
+}) {
+  final w = fontWeight ?? FontWeight.w400;
+  return TextStyle(
+    fontFamily: 'SpaceGrotesk',
+    fontSize: fontSize,
+    fontWeight: w,
+    fontVariations: [FontVariation('wght', w.value.toDouble())],
+    color: color,
+    letterSpacing: letterSpacing,
+    height: height,
+  );
+}
 
 // ── Палитра лобби (из дизайн-хэндоффа V2) ────────────────────────────────────
 const _bg = Color(0xFF07051A);
@@ -139,7 +159,7 @@ class _Header extends StatelessWidget {
         children: [
           Text(
             'なつかしい夜',
-            style: GoogleFonts.notoSansJp(
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w400,
               color: _textMuted,
@@ -147,7 +167,7 @@ class _Header extends StatelessWidget {
           ),
           Text(
             'Выбери игру',
-            style: GoogleFonts.spaceGrotesk(
+            style: _grotesk(
               fontSize: 26,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
@@ -188,7 +208,7 @@ class _DocsFooter extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Документы · О приложении',
-                  style: GoogleFonts.spaceGrotesk(
+                  style: _grotesk(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                     color: _textSecondary,
@@ -317,7 +337,7 @@ class _CardContent extends StatelessWidget {
                   entry.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.spaceGrotesk(
+                  style: _grotesk(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: _textPrimary,
@@ -327,7 +347,7 @@ class _CardContent extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 entry.nameJp,
-                style: GoogleFonts.notoSansJp(
+                style: const TextStyle(
                   fontSize: 10.5,
                   color: _textSecondary,
                 ),
@@ -339,7 +359,7 @@ class _CardContent extends StatelessWidget {
             children: [
               Text(
                 entry.difficulty.label,
-                style: GoogleFonts.spaceGrotesk(
+                style: _grotesk(
                   fontSize: 8.5,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.3,
@@ -350,7 +370,7 @@ class _CardContent extends StatelessWidget {
               if (record != null) ...[
                 Text(
                   'HS',
-                  style: GoogleFonts.spaceGrotesk(
+                  style: _grotesk(
                     fontSize: 8.5,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
@@ -360,7 +380,7 @@ class _CardContent extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text(
                   record!,
-                  style: GoogleFonts.spaceGrotesk(
+                  style: _grotesk(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
                     color: entry.accent,
@@ -369,7 +389,7 @@ class _CardContent extends StatelessWidget {
               ] else
                 Text(
                   'ещё не играл',
-                  style: GoogleFonts.spaceGrotesk(
+                  style: _grotesk(
                     fontSize: 9,
                     color: _textMuted,
                   ),
