@@ -1,0 +1,132 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/material.dart';
+
+import '../../../core/components/overlay_kit.dart';
+import '../game/whack_a_mole_flame_game.dart';
+
+/// HUD блица: счёт, рекорд, обратный таймер (краснеет под конец) и комбо.
+class WhackAMoleHud extends StatelessWidget {
+  const WhackAMoleHud({super.key, required this.game, required this.best});
+
+  final WhackaMoleFlameGame game;
+  final int best;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ValueListenableBuilder<int>(
+                  valueListenable: game.score,
+                  builder: (_, score, _) =>
+                      StatBlock(label: 'СЧЁТ', value: '$score'),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatBlock(
+                      label: 'РЕКОРД',
+                      value: '$best',
+                      color: const Color(0xFFFFD54F),
+                      alignEnd: true,
+                    ),
+                    const SizedBox(width: 10),
+                    PauseButton(onTap: game.togglePause),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ValueListenableBuilder<double>(
+              valueListenable: game.timeLeft,
+              builder: (_, t, _) => _TimerBar(seconds: t),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: ValueListenableBuilder<int>(
+                valueListenable: game.combo,
+                builder: (_, combo, _) => ComboBadge(combo: combo),
+              ),
+            ),
+            if (kDebugMode) ...[
+              const Spacer(),
+              Center(
+                child: ValueListenableBuilder<double>(
+                  valueListenable: game.fps,
+                  builder: (_, fps, _) => Text(
+                    '${fps.round()} FPS',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.35),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Обратный таймер блица: подпись, секунды и полоса прогресса (краснеет к концу).
+class _TimerBar extends StatelessWidget {
+  const _TimerBar({required this.seconds});
+
+  final double seconds;
+
+  static const double _roundTime = 30;
+
+  @override
+  Widget build(BuildContext context) {
+    final urgent = seconds <= 7;
+    final color = urgent ? const Color(0xFFFF5370) : const Color(0xFFFF9F45);
+    final frac = (seconds / _roundTime).clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'ВРЕМЯ',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.5),
+                fontSize: 11,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              seconds.ceil().toString(),
+              style: TextStyle(
+                color: color,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: frac,
+            minHeight: 6,
+            backgroundColor: Colors.white.withValues(alpha: 0.08),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+          ),
+        ),
+      ],
+    );
+  }
+}

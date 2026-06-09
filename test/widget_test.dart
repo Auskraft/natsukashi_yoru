@@ -14,11 +14,11 @@ void main() {
     await GameStorage.init();
   });
 
-  testWidgets('Меню показывает все 6 игр из каталога', (tester) async {
+  testWidgets('Меню показывает все игры из каталога', (tester) async {
     await tester.pumpWidget(const NatsukashiYoruApp());
 
     expect(find.text('Natsukashi Yoru'), findsOneWidget);
-    expect(kGameCatalog.length, 6);
+    expect(kGameCatalog.length, 14);
 
     // GridView ленивый — скроллим до каждой карточки (нижние за вьюпортом).
     for (final entry in kGameCatalog) {
