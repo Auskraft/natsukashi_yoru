@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../core/legal/legal_screens.dart';
+import '../../core/rating/rate_sheet.dart';
 import '../../core/storage/game_storage.dart';
 import 'game_catalog.dart';
 
@@ -101,11 +102,21 @@ class _MenuScreenState extends State<MenuScreen>
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(14, 4, 14, 24),
-                    itemCount: kGameCatalog.length + 1,
+                    itemCount: kGameCatalog.length + 2,
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
+                      // Предпоследний — «Оцените», последний — «Документы».
                       if (i == kGameCatalog.length) {
-                        return _DocsFooter(
+                        return _FooterRow(
+                          emoji: '⭐',
+                          title: 'Оцените приложение',
+                          onTap: () => showRateSheet(context),
+                        );
+                      }
+                      if (i == kGameCatalog.length + 1) {
+                        return _FooterRow(
+                          emoji: '📄',
+                          title: 'Документы · О приложении',
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (_) => const DocsScreen(),
@@ -181,10 +192,16 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// Пункт «Документы · О приложении» внизу списка игр.
-class _DocsFooter extends StatelessWidget {
-  const _DocsFooter({required this.onTap});
+/// Строка-пункт внизу списка игр («Оцените приложение», «Документы»).
+class _FooterRow extends StatelessWidget {
+  const _FooterRow({
+    required this.emoji,
+    required this.title,
+    required this.onTap,
+  });
 
+  final String emoji;
+  final String title;
   final VoidCallback onTap;
 
   @override
@@ -203,11 +220,11 @@ class _DocsFooter extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
-              const Text('📄', style: TextStyle(fontSize: 18)),
+              Text(emoji, style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Документы · О приложении',
+                  title,
                   style: _grotesk(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
