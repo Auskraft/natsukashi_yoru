@@ -59,7 +59,7 @@ TanksLogic buildDemoLevel({Random? random}) {
     sy: TankGeo.maxOrigin,
     dir: Dir.up,
     isPlayer: true,
-  );
+  )..shieldTimer = 4; // фора в начале партии
 
   final director = SpawnDirector(
     spawnTiles: const [Point(0, 0), Point(6, 0), Point(11, 0)],
@@ -69,14 +69,13 @@ TanksLogic buildDemoLevel({Random? random}) {
       TankKind.fast,
       TankKind.basic,
       TankKind.power,
-      TankKind.fast,
-      TankKind.armor,
       TankKind.basic,
       TankKind.fast,
-      TankKind.power,
+      TankKind.armor,
     ],
-    maxConcurrent: 4,
-    interval: 2.0,
+    maxConcurrent: 3,
+    interval: 2.8,
+    firstDelay: 1.8,
   );
 
   return TanksLogic(

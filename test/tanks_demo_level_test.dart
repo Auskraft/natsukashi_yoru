@@ -10,7 +10,7 @@ void main() {
     test('структура: ростер врагов, база цела, в начале на поле никого', () {
       final g = buildDemoLevel(random: Random(1));
       expect(g.enemiesAlive, 0);
-      expect(g.enemiesRemaining, 10);
+      expect(g.enemiesRemaining, 8);
       expect(g.eagle.destroyed, isFalse);
       expect(g.over, isFalse);
     });
@@ -25,12 +25,12 @@ void main() {
       expect(g.grid.solidForTank(p.sx + last, p.sy + last), isFalse);
     });
 
-    test('через ~1 c появляются враги (спавн-директор работает)', () {
+    test('через ~2.5 c появляются враги (спавн-директор работает)', () {
       final g = buildDemoLevel(random: Random(1));
-      for (var i = 0; i < 24; i++) {
+      for (var i = 0; i < 50; i++) {
         g.step(0.05, PlayerIntent.idle);
       }
-      expect(g.over, isFalse, reason: 'база переживает первую секунду');
+      expect(g.over, isFalse, reason: 'база переживает первые секунды');
       expect(g.enemiesAlive, greaterThan(0));
     });
 

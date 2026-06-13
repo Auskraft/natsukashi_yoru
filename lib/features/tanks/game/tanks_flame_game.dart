@@ -98,6 +98,23 @@ class TanksFlameGame extends FlameGame {
     }
   }
 
+  /// Вернуться на стартовый экран (используется кнопкой «В меню», пока нет
+  /// домашней витрины из фазы 5). Готовит свежий уровень как фон.
+  void toReady() {
+    _logic = buildDemoLevel(random: _rng);
+    enemiesLeft.value = _logic.enemiesAlive + _logic.enemiesRemaining;
+    score.value = 0;
+    lives.value = _logic.lives;
+    _moveDir = null;
+    _fireHeld = false;
+    _sparks.clear();
+    _popups.clear();
+    _shake = 0;
+    _flash = 0;
+    isPaused.value = false;
+    phase.value = TanksPhase.ready;
+  }
+
   // ── Игровой цикл ──────────────────────────────────────────────────────────────
   @override
   void update(double dt) {
@@ -448,7 +465,7 @@ class TanksFlameGame extends FlameGame {
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2
             ..color = const Color(0xFF8AB4FF)
-                .withValues(alpha: 0.5 + 0.4 * sin(_time * 14).abs()));
+                .withValues(alpha: 0.45 + 0.35 * sin(_time * 7).abs()));
     }
   }
 

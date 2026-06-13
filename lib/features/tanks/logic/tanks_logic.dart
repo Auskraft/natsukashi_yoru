@@ -222,7 +222,8 @@ class TanksLogic {
       if (t.isPlayer || !t.alive) continue;
       _drive(t, t.frozen ? null : t.dir, dt);
       if (!t.frozen && !t.moved && t.slideRemaining == 0) {
-        t.decisionTimer = 0; // упёрся — передумать в следующем кадре
+        // Упёрся — передумать скоро, но НЕ каждый кадр (иначе ствол «крутится»).
+        t.decisionTimer = 0.18;
       }
     }
   }

@@ -54,12 +54,12 @@ AiCommand decideAi(Tank self, AiContext ctx, Random rng) {
 
   final roll = rng.nextDouble();
   Dir dir;
-  if (roll < 0.7) {
+  if (roll < 0.8) {
     dir = dominantHoriz ? towardH : towardV; // к цели по доминантной оси
-  } else if (roll < 0.85) {
+  } else if (roll < 0.92) {
     dir = dominantHoriz ? towardV : towardH; // по второстепенной оси
   } else {
-    dir = Dir.values[rng.nextInt(4)]; // случайный манёвр
+    dir = Dir.values[rng.nextInt(4)]; // редкий случайный манёвр
   }
 
   final fire = ctx.shouldFire(self) || rng.nextDouble() < self.spec.pFire;

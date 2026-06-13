@@ -58,6 +58,18 @@ class _TanksGameScreenState extends State<TanksGameScreen> {
     unawaited(storage.registerPlay(DateTime.now()));
   }
 
+  /// Выход «в меню». Пока (фазы 2–3) игра — корневой экран, и popать некуда
+  /// (это давало чёрный экран), поэтому возвращаемся на стартовый экран игры.
+  /// В фазе 5, когда появится домашняя витрина, pop вернёт на неё.
+  void _exit() {
+    final nav = Navigator.of(context);
+    if (nav.canPop()) {
+      nav.pop();
+    } else {
+      _game.toReady();
+    }
+  }
+
   Dir? _toDir(AxisDirection? a) => switch (a) {
         null => null,
         AxisDirection.up => Dir.up,
@@ -80,7 +92,7 @@ class _TanksGameScreenState extends State<TanksGameScreen> {
                   return PausePanel(
                     onResume: _game.togglePause,
                     onRestart: _game.start,
-                    onExit: () => Navigator.of(context).pop(),
+                    onExit: _exit,
                   );
                 }
                 switch (_game.phase.value) {
@@ -114,7 +126,7 @@ class _TanksGameScreenState extends State<TanksGameScreen> {
                       best: _best,
                       isRecord: _isRecord,
                       onRetry: _game.start,
-                      onExit: () => Navigator.of(context).pop(),
+                      onExit: _exit,
                     );
                 }
               },
