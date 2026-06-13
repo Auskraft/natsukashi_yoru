@@ -1,0 +1,80 @@
+import 'dart:math';
+
+import '../logic/run_config.dart';
+import '../logic/tank_entities.dart';
+import '../logic/tank_geometry.dart';
+import '../logic/tank_grid.dart';
+import '../logic/tanks_logic.dart';
+
+/// Временный демо-уровень для фазы 2 (пока нет парсера уровней из фазы 4).
+///
+/// Позволяет пощупать на устройстве движение, стрельбу, разрушение терреина и
+/// «сок». Враги пока статичны (AI — фаза 3): по сути тир по мишеням + защита базы.
+TanksLogic buildDemoLevel({Random? random}) {
+  final grid = TerrainGrid();
+
+  // База-орёл внизу-центре в кирпичном кольце.
+  const ex = 6, ey = 12;
+  grid.setTile(ex, ey, TerrainType.base);
+  for (final t in const [
+    [5, 11],
+    [6, 11],
+    [7, 11],
+    [5, 12],
+    [7, 12],
+  ]) {
+    grid.setTile(t[0], t[1], TerrainType.brick);
+  }
+
+  // Кирпичные кластеры.
+  for (var x = 2; x <= 4; x++) {
+    grid.setTile(x, 8, TerrainType.brick);
+  }
+  for (var x = 8; x <= 10; x++) {
+    grid.setTile(x, 8, TerrainType.brick);
+  }
+  grid
+    ..setTile(2, 4, TerrainType.brick)
+    ..setTile(3, 4, TerrainType.brick)
+    ..setTile(9, 4, TerrainType.brick)
+    ..setTile(10, 4, TerrainType.brick);
+
+  // Сталь по центру, вода по краям, лес-укрытие.
+  grid.setTile(6, 6, TerrainType.steel);
+  grid
+    ..setTile(0, 9, TerrainType.water)
+    ..setTile(1, 9, TerrainType.water)
+    ..setTile(11, 9, TerrainType.water)
+    ..setTile(12, 9, TerrainType.water)
+    ..setTile(6, 3, TerrainType.forest)
+    ..setTile(6, 4, TerrainType.forest);
+
+  final player = Tank(
+    id: 0,
+    kind: TankKind.player,
+    sx: 2 * TankGeo.sub,
+    sy: TankGeo.maxOrigin,
+    dir: Dir.up,
+    isPlayer: true,
+  );
+  final enemies = <Tank>[
+    Tank(id: 1, kind: TankKind.basic, sx: 0, sy: 0, dir: Dir.down, isPlayer: false),
+    Tank(
+        id: 2,
+        kind: TankKind.fast,
+        sx: 5 * TankGeo.sub,
+        sy: 0,
+        dir: Dir.down,
+        isPlayer: false),
+    Tank(id: 3, kind: TankKind.armor, sx: 80, sy: 0, dir: Dir.down, isPlayer: false),
+  ];
+
+  return TanksLogic(
+    grid: grid,
+    eagle: Eagle(tileX: ex, tileY: ey),
+    player: player,
+    enemies: enemies,
+    config: RunConfig.campaign,
+    random: random,
+  );
+}
