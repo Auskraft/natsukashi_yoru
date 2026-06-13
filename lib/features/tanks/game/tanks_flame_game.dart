@@ -363,7 +363,22 @@ class TanksFlameGame extends FlameGame {
 
   void _drawIce(Canvas canvas, Offset o, double tp) {
     final r = Rect.fromLTWH(o.dx, o.dy, tp, tp).deflate(0.5);
-    canvas.drawRect(r, Paint()..color = const Color(0xFFAFD8F0).withValues(alpha: 0.5));
+    // Полупрозрачная «наледь» + лёгкая окантовка и блик — читается как пол,
+    // по которому можно ехать (а не сплошной блок-стена).
+    canvas.drawRect(
+        r, Paint()..color = const Color(0xFFBFE9FF).withValues(alpha: 0.28));
+    canvas.drawRect(
+        r,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = const Color(0xFF9CD7F5).withValues(alpha: 0.5));
+    canvas.drawLine(
+        Offset(r.left, r.top + tp * 0.32),
+        Offset(r.left + tp * 0.32, r.top),
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.4)
+          ..strokeWidth = 1.2);
   }
 
   void _drawForest(Canvas canvas) {
@@ -411,9 +426,13 @@ class TanksFlameGame extends FlameGame {
   }
 
   void _drawTank(Canvas canvas, Tank t) {
-    final o = _px(t.sx, t.sy);
+    // Плавное движение: рисуем с учётом накопленной дробной части шага — иначе
+    // целочисленные суб-клетки дают рывки («резкое» управление).
+    final fx = t.sx + t.moveAccum * t.dir.dx;
+    final fy = t.sy + t.moveAccum * t.dir.dy;
+    final o = _px(fx, fy);
     final s = TankGeo.tankSize * _u;
-    final rect = Rect.fromLTWH(o.dx, o.dy, s, s).deflate(s * 0.07);
+    final rect = Rect.fromLTWH(o.dx, o.dy, s, s).deflate(s * 0.09);
     final color = t.isPlayer ? const Color(0xFF4ECDC4) : _kindColor(t.kind);
     final c = rect.center;
 
@@ -425,36 +444,43 @@ class TanksFlameGame extends FlameGame {
             ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
     }
 
-    // Корпус.
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(s * 0.16)),
-        Paint()..color = color);
-    // Гусеницы (тёмные полосы по бокам относительно направления).
-    final tread = Paint()..color = Colors.black.withValues(alpha: 0.28);
+    // Корпус + тонкая тёмная окантовка (чтобы танк не сливался с терреином).
+    final hull = RRect.fromRectAndRadius(rect, Radius.circular(s * 0.16));
+    canvas.drawRRect(hull, Paint()..color = color);
+    canvas.drawRRect(
+        hull,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = max(1, s * 0.045)
+          ..color = Colors.black.withValues(alpha: 0.4));
+    // Гусеницы (тонкие тёмные полосы по бокам относительно направления).
+    final tread = Paint()..color = Colors.black.withValues(alpha: 0.26);
     if (t.dir.isHorizontal) {
       canvas.drawRect(
-          Rect.fromLTWH(rect.left, rect.top, rect.width, rect.height * 0.16), tread);
+          Rect.fromLTWH(rect.left, rect.top, rect.width, rect.height * 0.12), tread);
       canvas.drawRect(
-          Rect.fromLTWH(rect.left, rect.bottom - rect.height * 0.16, rect.width,
-              rect.height * 0.16),
+          Rect.fromLTWH(rect.left, rect.bottom - rect.height * 0.12, rect.width,
+              rect.height * 0.12),
           tread);
     } else {
       canvas.drawRect(
-          Rect.fromLTWH(rect.left, rect.top, rect.width * 0.16, rect.height), tread);
+          Rect.fromLTWH(rect.left, rect.top, rect.width * 0.12, rect.height), tread);
       canvas.drawRect(
-          Rect.fromLTWH(rect.right - rect.width * 0.16, rect.top,
-              rect.width * 0.16, rect.height),
+          Rect.fromLTWH(rect.right - rect.width * 0.12, rect.top,
+              rect.width * 0.12, rect.height),
           tread);
     }
-    // Башня.
-    canvas.drawCircle(c, s * 0.2, Paint()..color = Colors.black.withValues(alpha: 0.32));
-    // Ствол.
+    // Башня (компактнее).
+    canvas.drawCircle(
+        c, s * 0.15, Paint()..color = Colors.black.withValues(alpha: 0.32));
+    // Ствол (тоньше и короче).
     final dir = Offset(t.dir.dx.toDouble(), t.dir.dy.toDouble());
     canvas.drawLine(
         c,
-        c + dir * (s * 0.46),
+        c + dir * (s * 0.42),
         Paint()
-          ..color = Colors.white.withValues(alpha: 0.92)
-          ..strokeWidth = s * 0.12
+          ..color = Colors.white.withValues(alpha: 0.9)
+          ..strokeWidth = s * 0.085
           ..strokeCap = StrokeCap.round);
     // Щит.
     if (t.shielded) {
@@ -556,7 +582,7 @@ class TanksFlameGame extends FlameGame {
 
   Color _kindColor(TankKind k) => switch (k) {
         TankKind.player => const Color(0xFF4ECDC4),
-        TankKind.basic => const Color(0xFF9AA7B5),
+        TankKind.basic => const Color(0xFFD6B789),
         TankKind.fast => const Color(0xFFFF9F45),
         TankKind.power => const Color(0xFFFF5370),
         TankKind.armor => const Color(0xFFB388FF),
