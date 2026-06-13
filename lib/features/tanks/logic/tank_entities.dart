@@ -42,6 +42,18 @@ const int kSteelBreakPower = 2;
 /// Длительность жизни невзятого бонуса, сек.
 const double kPowerUpLifetime = 12;
 
+/// Длительность щита от бонуса «шлем», сек.
+const double kShieldHelmet = 8;
+
+/// Длительность заморозки врагов (бонус «таймер»), сек.
+const double kFreezeDuration = 6;
+
+/// Длительность укреплённой базы сталью (бонус «лопата»), сек.
+const double kShovelDuration = 12;
+
+/// Дистанция инерции на льду, суб-клеток.
+const int kIceSlide = 5;
+
 /// Тех-параметры архетипа танка. Тюнинг — это данные, не код.
 class TankSpec {
   const TankSpec({
@@ -165,6 +177,15 @@ class Tank {
 
   /// Двигался ли танк в последнем кадре (для траков/звука).
   bool moved = false;
+
+  /// Намерение выстрелить (для врагов ставит AI; у игрока — через ввод).
+  bool wantsFire = false;
+
+  /// Несёт бонус — роняет power-up при гибели.
+  bool carriesBonus = false;
+
+  /// Двигался ли в прошлый кадр (для инерции на льду).
+  bool wasMoving = false;
 
   TankSpec get spec => kTankSpecs[kind]!;
 

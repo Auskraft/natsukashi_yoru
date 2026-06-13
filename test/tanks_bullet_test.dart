@@ -71,8 +71,10 @@ void main() {
     });
 
     test('пуля игрока уничтожает basic с одного попадания и даёт очки', () {
+      // freezeTimer фиксирует врага (AI не сдвигает мишень) — детерминизм теста.
       final enemy = Tank(
-          id: 5, kind: TankKind.basic, sx: 40, sy: 0, dir: Dir.down, isPlayer: false);
+          id: 5, kind: TankKind.basic, sx: 40, sy: 0, dir: Dir.down, isPlayer: false)
+        ..freezeTimer = 999;
       final g = _build(
           player: _player(sx: 0, sy: 40), enemies: [enemy], enemiesRemaining: 0);
       g.bullets.add(_playerBullet(x: 30, y: 6, dir: Dir.right, speed: 200));
@@ -88,7 +90,8 @@ void main() {
 
     test('armor выдерживает 4 попадания', () {
       final enemy = Tank(
-          id: 5, kind: TankKind.armor, sx: 40, sy: 0, dir: Dir.down, isPlayer: false);
+          id: 5, kind: TankKind.armor, sx: 40, sy: 0, dir: Dir.down, isPlayer: false)
+        ..freezeTimer = 999;
       final g = _build(
           player: _player(sx: 0, sy: 40), enemies: [enemy], enemiesRemaining: 99);
 

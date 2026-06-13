@@ -117,4 +117,27 @@ void main() {
       expect(s.isQuiet, isTrue);
     });
   });
+
+  group('лёд', () {
+    test('после отпускания танк ещё скользит по инерции', () {
+      final grid = TerrainGrid();
+      for (var tx = 0; tx < TankGeo.tiles; tx++) {
+        grid.setTile(tx, 6, TerrainType.ice);
+        grid.setTile(tx, 7, TerrainType.ice);
+      }
+      final g = _build(
+        grid: grid,
+        player: _player(sx: 0, sy: 6 * TankGeo.sub, dir: Dir.right),
+        enemiesRemaining: 1,
+      );
+      for (var i = 0; i < 6; i++) {
+        g.step(0.05, const PlayerIntent(move: Dir.right));
+      }
+      final moving = g.player.sx;
+      g.step(0.05, PlayerIntent.idle); // ставит инерцию
+      g.step(0.05, PlayerIntent.idle); // едет по инерции
+      g.step(0.05, PlayerIntent.idle);
+      expect(g.player.sx, greaterThan(moving), reason: 'инерция на льду');
+    });
+  });
 }

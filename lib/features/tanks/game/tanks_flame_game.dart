@@ -143,6 +143,18 @@ class TanksFlameGame extends FlameGame {
     for (final c in s.bulletClashes) {
       _spawnChips(c, Colors.white, count: 7, speed: 130);
     }
+    for (final f in s.spawnFlashes) {
+      _spawnChips(f, const Color(0xFF8AB4FF), count: 12, speed: 130);
+    }
+    for (final e in s.powerUpsSpawned) {
+      _spawnChips(e.center, _powerColor(e.type), count: 8, speed: 90);
+    }
+    for (final e in s.powerUpsTaken) {
+      _spawnExplosion(e.center, _powerColor(e.type));
+      _popups.add(_Popup(e.center, _powerLabel(e.type), _powerColor(e.type),
+          big: true));
+      Haptics.combo(3);
+    }
     if (s.gainedScore > 0) score.value = _logic.score;
     if (s.playerHit) {
       lives.value = _logic.lives;
@@ -227,6 +239,7 @@ class TanksFlameGame extends FlameGame {
     _drawFieldFrame(canvas);
     _drawTerrain(canvas);
     _drawEagle(canvas);
+    _drawPowerUps(canvas);
     _drawTanks(canvas);
     _drawBullets(canvas);
     _drawForest(canvas); // полог поверх танков — укрытие
@@ -485,6 +498,44 @@ class TanksFlameGame extends FlameGame {
       tp.paint(canvas, center - Offset(tp.width / 2, tp.height / 2));
     }
   }
+
+  void _drawPowerUps(Canvas canvas) {
+    final tp = _tilePx;
+    for (final p in _logic.powerUps) {
+      final o = _px(p.tileX * TankGeo.sub, p.tileY * TankGeo.sub);
+      final r = Rect.fromLTWH(o.dx, o.dy, tp, tp).deflate(tp * 0.12);
+      final blink = 0.5 + 0.5 * sin(p.blink * 6);
+      final color = _powerColor(p.type);
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(r.inflate(2), Radius.circular(tp * 0.2)),
+          Paint()
+            ..color = color.withValues(alpha: 0.35 * blink)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+      canvas.drawRRect(RRect.fromRectAndRadius(r, Radius.circular(tp * 0.18)),
+          Paint()..color = color.withValues(alpha: 0.9));
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(r.deflate(tp * 0.24), Radius.circular(tp * 0.1)),
+          Paint()..color = Colors.white.withValues(alpha: 0.9));
+    }
+  }
+
+  Color _powerColor(PowerUpType t) => switch (t) {
+        PowerUpType.star => const Color(0xFFFFD54F),
+        PowerUpType.grenade => const Color(0xFFFF5370),
+        PowerUpType.helmet => const Color(0xFF8AB4FF),
+        PowerUpType.shovel => const Color(0xFFB7BECC),
+        PowerUpType.life => const Color(0xFF5CE08A),
+        PowerUpType.freeze => const Color(0xFF4ECDC4),
+      };
+
+  String _powerLabel(PowerUpType t) => switch (t) {
+        PowerUpType.star => 'СИЛА',
+        PowerUpType.grenade => 'БУМ!',
+        PowerUpType.helmet => 'ЩИТ',
+        PowerUpType.shovel => 'БРОНЯ',
+        PowerUpType.life => '+ЖИЗНЬ',
+        PowerUpType.freeze => 'СТОП',
+      };
 
   Color _kindColor(TankKind k) => switch (k) {
         TankKind.player => const Color(0xFF4ECDC4),
