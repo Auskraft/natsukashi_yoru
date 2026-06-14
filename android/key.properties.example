@@ -11,7 +11,7 @@
 # 2) Заполните значения ниже. storeFile — путь к .jks относительно android/app/
 #    (или абсолютный путь).
 
-storePassword=ПАРОЛЬ_ХРАНИЛИЩА
-keyPassword=ПАРОЛЬ_КЛЮЧА
+storePassword=d&G@EX3T3lVg&3vA6Y&2I%deTF#KD84PHm0z&F652OVG4Iu#3&*D9@9zv4#g
+keyPassword=d&G@EX3T3lVg&3vA6Y&2I%deTF#KD84PHm0z&F652OVG4Iu#3&*D9@9zv4#g
 keyAlias=upload
 storeFile=upload-keystore.jks

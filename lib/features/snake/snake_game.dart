@@ -4,6 +4,8 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/components/overlay_kit.dart';
+import '../../core/components/control_pad.dart';
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import 'components/snake_logic.dart';
 import 'game/snake_flame_game.dart';
@@ -29,11 +31,13 @@ class _SnakeScreenState extends State<SnakeScreen> {
   int _lastScore = 0;
   bool _isRecord = false;
   Offset _drag = Offset.zero;
+  late ControlScheme _controls;
 
   @override
   void initState() {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
+    _controls = GameStorage.instance.controlScheme(_gameId);
     _game = SnakeFlameGame(onGameOver: _handleGameOver);
   }
 
@@ -62,6 +66,13 @@ class _SnakeScreenState extends State<SnakeScreen> {
     _game.steer(dir);
     _drag = Offset.zero;
   }
+
+  static Direction _dirOf(PadDir d) => switch (d) {
+        PadDir.up => Direction.up,
+        PadDir.down => Direction.down,
+        PadDir.left => Direction.left,
+        PadDir.right => Direction.right,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +108,25 @@ class _SnakeScreenState extends State<SnakeScreen> {
                         onExit: () => Navigator.of(context).pop(),
                       );
                   }
+                },
+              ),
+            ),
+            // Экранные контролы (если выбраны в «Управление»); жесты остаются.
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  final running = _game.phase.value == SnakePhase.running &&
+                      !_game.isPaused.value;
+                  return ControlOverlay(
+                    scheme: _controls,
+                    visible: running,
+                    accent: const Color(0xFF34D399),
+                    onDir: (d) => _game.steer(_dirOf(d)),
+                  );
                 },
               ),
             ),

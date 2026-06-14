@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/legal/legal_screens.dart';
 import '../../core/rating/rate_sheet.dart';
 import '../../core/storage/game_storage.dart';
+import '../settings/control_settings_screen.dart';
 import 'game_catalog.dart';
 
 /// Стиль локального шрифта Space Grotesk (вариативный, бандлится с приложением).
@@ -102,18 +103,29 @@ class _MenuScreenState extends State<MenuScreen>
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(14, 4, 14, 24),
-                    itemCount: kGameCatalog.length + 2,
+                    itemCount: kGameCatalog.length + 3,
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
-                      // Предпоследний — «Оцените», последний — «Документы».
+                      // Внизу списка: Управление, затем «Оцените» и «Документы».
                       if (i == kGameCatalog.length) {
+                        return _FooterRow(
+                          emoji: '🎮',
+                          title: 'Управление',
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const ControlSettingsScreen(),
+                            ),
+                          ),
+                        );
+                      }
+                      if (i == kGameCatalog.length + 1) {
                         return _FooterRow(
                           emoji: '⭐',
                           title: 'Оцените приложение',
                           onTap: () => showRateSheet(context),
                         );
                       }
-                      if (i == kGameCatalog.length + 1) {
+                      if (i == kGameCatalog.length + 2) {
                         return _FooterRow(
                           emoji: '📄',
                           title: 'Документы · О приложении',

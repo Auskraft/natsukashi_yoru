@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../input/control_scheme.dart';
+
 /// Единое хранилище прогресса на `shared_preferences`.
 ///
 /// Держит рекорды по каждой игре и дневной стрик (ретеншн-механика).
@@ -45,6 +47,16 @@ class GameStorage {
 
   /// Зафиксировать принятие документов.
   Future<void> acceptConsent() => _prefs.setBool(_consentKey, true);
+
+  // ── Схема управления (по каждой игре) ─────────────────────────────────────
+
+  /// Выбранная схема управления для игры (по умолчанию — жесты).
+  ControlScheme controlScheme(String gameId) =>
+      ControlScheme.fromId(_prefs.getString('ctrl_$gameId'));
+
+  /// Сохранить схему управления для игры.
+  Future<void> setControlScheme(String gameId, ControlScheme scheme) =>
+      _prefs.setString('ctrl_$gameId', scheme.id);
 
   // ── Лучшее время (меньше — лучше; для игр на скорость, напр. сапёр) ───────
 
