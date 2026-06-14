@@ -10,8 +10,14 @@ enum ControlScheme {
   /// Свайпы/жесты по экрану — поведение по умолчанию.
   gestures,
 
-  /// Экранная крестовина (D-pad).
+  /// Экранная крестовина по центру (D-pad).
   dpad,
+
+  /// Раздельно: вверх/вниз слева, влево/вправо справа.
+  dpadSplitLeft,
+
+  /// Раздельно: вверх/вниз справа, влево/вправо слева.
+  dpadSplitRight,
 
   /// Плавающий джойстик.
   joystick;
@@ -27,7 +33,9 @@ enum ControlScheme {
   /// Короткое название для чипа.
   String get label => switch (this) {
         ControlScheme.gestures => 'Жесты',
-        ControlScheme.dpad => 'D-pad',
+        ControlScheme.dpad => 'Крестовина',
+        ControlScheme.dpadSplitLeft => '↕ слева',
+        ControlScheme.dpadSplitRight => '↕ справа',
         ControlScheme.joystick => 'Джойстик',
       };
 
@@ -35,6 +43,8 @@ enum ControlScheme {
   String get emoji => switch (this) {
         ControlScheme.gestures => '👆',
         ControlScheme.dpad => '🎮',
+        ControlScheme.dpadSplitLeft => '🎮',
+        ControlScheme.dpadSplitRight => '🎮',
         ControlScheme.joystick => '🕹️',
       };
 
@@ -44,8 +54,12 @@ enum ControlScheme {
           'Свайпы по экрану — проводи пальцем в нужную сторону. '
               'Ничего не загораживает поле.',
         ControlScheme.dpad =>
-          'Экранная крестовина внизу. Чёткие нажатия по направлениям — '
+          'Крестовина по центру внизу. Чёткие нажатия по направлениям — '
               'удобно одной рукой.',
+        ControlScheme.dpadSplitLeft =>
+          'Раздельно под две руки: вверх/вниз — слева, влево/вправо — справа.',
+        ControlScheme.dpadSplitRight =>
+          'Раздельно под две руки: вверх/вниз — справа, влево/вправо — слева.',
         ControlScheme.joystick =>
           'Плавающий джойстик: зажми и веди в сторону. '
               'Палец сам тянется к центру.',

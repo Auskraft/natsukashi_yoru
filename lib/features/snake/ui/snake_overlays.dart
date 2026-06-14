@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../core/components/overlay_kit.dart';
 import '../game/snake_flame_game.dart';
 
-/// HUD: сверху счёт/рекорд/комбо, снизу — ненавязчивая статистика
-/// (длина, скорость и FPS в debug-сборке).
+/// HUD: сверху счёт/рекорд/комбо и компактная статистика (длина, скорость и FPS
+/// в debug-сборке) — всё вверху, низ оставлен свободным под экранные контролы.
 class SnakeHud extends StatelessWidget {
   const SnakeHud({super.key, required this.game, required this.best});
 
@@ -56,8 +56,8 @@ class SnakeHud extends StatelessWidget {
                 ),
               ],
             ),
-            const Spacer(),
-            _BottomReadout(game: game),
+            const SizedBox(height: 8),
+            _TopReadout(game: game),
           ],
         ),
       ),
@@ -65,18 +65,19 @@ class SnakeHud extends StatelessWidget {
   }
 }
 
-/// Нижняя строка статистики. Заполняет ранее пустовавший низ поля.
-class _BottomReadout extends StatelessWidget {
-  const _BottomReadout({required this.game});
+/// Компактная строка статистики под основной инфой (длина/скорость/FPS).
+/// Перенесена наверх, чтобы освободить низ под экранные контролы.
+class _TopReadout extends StatelessWidget {
+  const _TopReadout({required this.game});
 
   final SnakeFlameGame game;
 
   @override
   Widget build(BuildContext context) {
     final style = TextStyle(
-      color: Colors.white.withValues(alpha: 0.35),
-      fontSize: 12,
-      letterSpacing: 1.5,
+      color: Colors.white.withValues(alpha: 0.3),
+      fontSize: 10.5,
+      letterSpacing: 1.2,
       fontWeight: FontWeight.w700,
     );
     return AnimatedBuilder(
@@ -87,7 +88,7 @@ class _BottomReadout extends StatelessWidget {
           'СКОРОСТЬ ×${game.speed.value.toStringAsFixed(1)}',
           if (kDebugMode) '${game.fps.value.round()} FPS',
         ];
-        return Text(parts.join('     ·     '), style: style);
+        return Text(parts.join('   ·   '), style: style);
       },
     );
   }

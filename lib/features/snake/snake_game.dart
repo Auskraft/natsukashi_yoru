@@ -38,7 +38,10 @@ class _SnakeScreenState extends State<SnakeScreen> {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
     _controls = GameStorage.instance.controlScheme(_gameId);
-    _game = SnakeFlameGame(onGameOver: _handleGameOver);
+    _game = SnakeFlameGame(
+      onGameOver: _handleGameOver,
+      bottomInset: _bottomReserve(_controls),
+    );
   }
 
   void _handleGameOver(int score) {
@@ -72,6 +75,14 @@ class _SnakeScreenState extends State<SnakeScreen> {
         PadDir.down => Direction.down,
         PadDir.left => Direction.left,
         PadDir.right => Direction.right,
+      };
+
+  // Сколько резервировать снизу под выбранную схему (чтобы поле не налезало
+  // на контролы). Раздельным раскладкам нужно меньше места, чем крестовине.
+  static double _bottomReserve(ControlScheme s) => switch (s) {
+        ControlScheme.gestures => 28,
+        ControlScheme.dpadSplitLeft || ControlScheme.dpadSplitRight => 160,
+        ControlScheme.dpad || ControlScheme.joystick => 212,
       };
 
   @override

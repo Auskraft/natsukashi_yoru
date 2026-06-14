@@ -17,13 +17,11 @@ class ControlPickerScreen extends StatefulWidget {
     required this.gameId,
     required this.title,
     required this.accent,
-    this.dirs = const [PadDir.up, PadDir.down, PadDir.left, PadDir.right],
   });
 
   final String gameId;
   final String title;
   final Color accent;
-  final List<PadDir> dirs;
 
   @override
   State<ControlPickerScreen> createState() => _ControlPickerScreenState();
@@ -58,7 +56,6 @@ class _ControlPickerScreenState extends State<ControlPickerScreen> {
                     key: ValueKey(_scheme),
                     scheme: _scheme,
                     accent: widget.accent,
-                    dirs: widget.dirs,
                   ),
                 ),
               ),
@@ -169,12 +166,10 @@ class _ControlPreview extends StatelessWidget {
     super.key,
     required this.scheme,
     required this.accent,
-    required this.dirs,
   });
 
   final ControlScheme scheme;
   final Color accent;
-  final List<PadDir> dirs;
 
   static const double _vw = 300;
   static const double _vh = 600;
@@ -206,7 +201,6 @@ class _ControlPreview extends StatelessWidget {
                   child: ControlOverlay(
                     scheme: scheme,
                     accent: accent,
-                    dirs: dirs,
                     onDir: _noop,
                   ),
                 ),
@@ -276,7 +270,7 @@ class _FauxBoard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 150),
+          const SizedBox(height: 180),
         ],
       ),
     );

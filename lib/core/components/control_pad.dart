@@ -9,34 +9,48 @@ import '../input/control_scheme.dart';
 /// сопоставляет его со своим направлением (см. Snake `_dirOf`). Стиль — «ночной
 /// неон», как у оверлеев. Логику игр не трогают — лишь второй источник ввода.
 
-const List<PadDir> _all4 = [PadDir.up, PadDir.down, PadDir.left, PadDir.right];
+/// Раскладка кнопочной крестовины.
+enum DpadLayout {
+  /// Крестовина по центру (4 стрелки).
+  cross,
+
+  /// Раздельно: вверх/вниз слева, влево/вправо справа.
+  splitLeft,
+
+  /// Раздельно: вверх/вниз справа, влево/вправо слева.
+  splitRight,
+}
 
 /// Обёртка: по [scheme] показывает нужный контрол (или ничего для жестов).
-/// Размещать внизу `Stack` экрана игры; [visible] — управляет показом (пауза и
-/// т.п.) с плавным затуханием.
+/// Размещать внизу `Stack` экрана игры; [visible] плавно гасит контрол на паузе.
 class ControlOverlay extends StatelessWidget {
   const ControlOverlay({
     super.key,
     required this.scheme,
     required this.onDir,
     this.accent = const Color(0xFF7C5CFF),
-    this.dirs = _all4,
     this.visible = true,
   });
 
   final ControlScheme scheme;
   final ValueChanged<PadDir> onDir;
   final Color accent;
-  final List<PadDir> dirs;
   final bool visible;
 
   @override
   Widget build(BuildContext context) {
     if (scheme == ControlScheme.gestures) return const SizedBox.shrink();
 
-    final control = scheme == ControlScheme.dpad
-        ? DirectionPad(onDir: onDir, accent: accent, dirs: dirs)
-        : FloatingJoystick(onDir: onDir, accent: accent, dirs: dirs);
+    final Widget control = switch (scheme) {
+      ControlScheme.dpad =>
+        DirectionPad(onDir: onDir, accent: accent, layout: DpadLayout.cross),
+      ControlScheme.dpadSplitLeft => DirectionPad(
+          onDir: onDir, accent: accent, layout: DpadLayout.splitLeft),
+      ControlScheme.dpadSplitRight => DirectionPad(
+          onDir: onDir, accent: accent, layout: DpadLayout.splitRight),
+      ControlScheme.joystick => FloatingJoystick(onDir: onDir, accent: accent),
+      ControlScheme.gestures => const SizedBox.shrink(),
+    };
 
     return IgnorePointer(
       ignoring: !visible,
@@ -46,7 +60,7 @@ class ControlOverlay extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: control,
           ),
         ),
@@ -55,74 +69,90 @@ class ControlOverlay extends StatelessWidget {
   }
 }
 
-/// Крестовина из 4 кнопок (показываются только направления из [dirs]).
+/// Кнопочная крестовина в одной из раскладок [DpadLayout].
 class DirectionPad extends StatelessWidget {
   const DirectionPad({
     super.key,
     required this.onDir,
     required this.accent,
-    this.dirs = _all4,
+    this.layout = DpadLayout.cross,
   });
 
   final ValueChanged<PadDir> onDir;
   final Color accent;
-  final List<PadDir> dirs;
+  final DpadLayout layout;
+
+  Widget _btn(IconData icon, PadDir dir) =>
+      _PadButton(icon: icon, accent: accent, onPressed: () => onDir(dir));
+
+  Widget get _vertical => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _btn(Icons.keyboard_arrow_up_rounded, PadDir.up),
+          const SizedBox(height: 14),
+          _btn(Icons.keyboard_arrow_down_rounded, PadDir.down),
+        ],
+      );
+
+  Widget get _horizontal => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _btn(Icons.keyboard_arrow_left_rounded, PadDir.left),
+          const SizedBox(width: 14),
+          _btn(Icons.keyboard_arrow_right_rounded, PadDir.right),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: SizedBox(
-        width: 172,
-        height: 172,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (dirs.contains(PadDir.up))
-              Align(
-                alignment: Alignment.topCenter,
-                child: _PadButton(
-                  icon: Icons.keyboard_arrow_up_rounded,
-                  accent: accent,
-                  onPressed: () => onDir(PadDir.up),
+    switch (layout) {
+      case DpadLayout.cross:
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            width: 164,
+            height: 164,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: _btn(Icons.keyboard_arrow_up_rounded, PadDir.up),
                 ),
-              ),
-            if (dirs.contains(PadDir.down))
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: _PadButton(
-                  icon: Icons.keyboard_arrow_down_rounded,
-                  accent: accent,
-                  onPressed: () => onDir(PadDir.down),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: _btn(Icons.keyboard_arrow_down_rounded, PadDir.down),
                 ),
-              ),
-            if (dirs.contains(PadDir.left))
-              Align(
-                alignment: Alignment.centerLeft,
-                child: _PadButton(
-                  icon: Icons.keyboard_arrow_left_rounded,
-                  accent: accent,
-                  onPressed: () => onDir(PadDir.left),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _btn(Icons.keyboard_arrow_left_rounded, PadDir.left),
                 ),
-              ),
-            if (dirs.contains(PadDir.right))
-              Align(
-                alignment: Alignment.centerRight,
-                child: _PadButton(
-                  icon: Icons.keyboard_arrow_right_rounded,
-                  accent: accent,
-                  onPressed: () => onDir(PadDir.right),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _btn(Icons.keyboard_arrow_right_rounded, PadDir.right),
                 ),
-              ),
-          ],
-        ),
-      ),
-    );
+              ],
+            ),
+          ),
+        );
+      case DpadLayout.splitLeft:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [_vertical, _horizontal],
+        );
+      case DpadLayout.splitRight:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [_horizontal, _vertical],
+        );
+    }
   }
 }
 
-/// Круглая кнопка крестовины: нажатие даёт действие сразу (onTapDown) + хаптику,
-/// со сжатием и подсветкой акцентом.
+/// Круглая кнопка: действие сразу на нажатие (onTapDown) + хаптика, со сжатием
+/// и подсветкой акцентом.
 class _PadButton extends StatefulWidget {
   const _PadButton({
     required this.icon,
@@ -190,20 +220,17 @@ class _PadButtonState extends State<_PadButton> {
 const double _kJoyRadius = 62;
 const double _kKnob = 54;
 
-/// Плавающий джойстик: зажми и веди. Выдаёт доминирующее направление из [dirs]
-/// при его смене (с мёртвой зоной), шар тянется за пальцем и возвращается в
-/// центр при отпускании.
+/// Плавающий джойстик: зажми и веди. Выдаёт доминирующее направление при его
+/// смене (с мёртвой зоной), шар тянется за пальцем и возвращается в центр.
 class FloatingJoystick extends StatefulWidget {
   const FloatingJoystick({
     super.key,
     required this.onDir,
     required this.accent,
-    this.dirs = _all4,
   });
 
   final ValueChanged<PadDir> onDir;
   final Color accent;
-  final List<PadDir> dirs;
 
   @override
   State<FloatingJoystick> createState() => _FloatingJoystickState();
@@ -228,7 +255,7 @@ class _FloatingJoystickState extends State<FloatingJoystick> {
     final dir = v.dx.abs() > v.dy.abs()
         ? (v.dx > 0 ? PadDir.right : PadDir.left)
         : (v.dy > 0 ? PadDir.down : PadDir.up);
-    if (widget.dirs.contains(dir) && dir != _last) {
+    if (dir != _last) {
       _last = dir;
       Haptics.select();
       widget.onDir(dir);

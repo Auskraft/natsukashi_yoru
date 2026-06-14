@@ -18,12 +18,17 @@ class SnakeFlameGame extends FlameGame {
     required this.onGameOver,
     this.cols = 15,
     this.rows = 25,
+    this.bottomInset = 28,
   });
 
   /// Вызывается при смерти со счётом партии (для рекордов/оверлея).
   final void Function(int score) onGameOver;
   final int cols;
   final int rows;
+
+  /// Резерв снизу под экранные контролы (крестовина/джойстик). Мал для жестов,
+  /// большой для пада — задаёт экран-хост по выбранной схеме.
+  final double bottomInset;
 
   late final SnakeLogic _logic = SnakeLogic(cols: cols, rows: rows);
   final Random _rng = Random();
@@ -50,10 +55,8 @@ class SnakeFlameGame extends FlameGame {
   static const double _baseStep = 0.2;
   static const double _minStep = 0.09;
 
-  // Резерв сверху под HUD и снизу под строку статистики, чтобы поле не
-  // налезало на оверлеи и низ не пустовал.
-  static const double _topInset = 76;
-  static const double _bottomInset = 48;
+  // Резерв сверху под HUD (счёт + перенесённая наверх строка статистики).
+  static const double _topInset = 128;
 
   // Комбо.
   double _sinceEat = 0;
@@ -238,7 +241,7 @@ class SnakeFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - _bottomInset;
+    final availH = size.y - _topInset - bottomInset;
     _cell = min(size.x / cols, availH / rows);
     final w = _cell * cols;
     final h = _cell * rows;
