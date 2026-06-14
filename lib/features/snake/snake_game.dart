@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 import '../../core/components/overlay_kit.dart';
 import '../../core/components/control_pad.dart';
@@ -32,6 +33,10 @@ class _SnakeScreenState extends State<SnakeScreen> {
   bool _isRecord = false;
   Offset _drag = Offset.zero;
   late ControlScheme _controls;
+  StreamSubscription<AccelerometerEvent>? _accel;
+  Direction? _lastTiltDir;
+  double? _baseX;
+  double? _baseY;
 
   @override
   void initState() {
@@ -42,6 +47,44 @@ class _SnakeScreenState extends State<SnakeScreen> {
       onGameOver: _handleGameOver,
       bottomInset: _bottomReserve(_controls),
     );
+    if (_controls == ControlScheme.gyro) {
+      _accel = accelerometerEventStream().listen(_onTilt);
+    }
+  }
+
+  @override
+  void dispose() {
+    _accel?.cancel();
+    super.dispose();
+  }
+
+  // Управление наклоном: телефон наклоняешь — змейка едет туда. Базовый наклон
+  // калибруется по первому замеру (любой хват). Пороги/знаки — на глаз; если оси
+  // инвертированы под твой хват, поменяем знаки. Срабатывает при смене курса.
+  void _onTilt(AccelerometerEvent e) {
+    _baseX ??= e.x;
+    _baseY ??= e.y;
+    final dx = e.x - _baseX!;
+    final dy = e.y - _baseY!;
+    const threshold = 2.5;
+    Direction? dir;
+    if (dx.abs() > dy.abs()) {
+      if (dx > threshold) {
+        dir = Direction.left;
+      } else if (dx < -threshold) {
+        dir = Direction.right;
+      }
+    } else {
+      if (dy > threshold) {
+        dir = Direction.down;
+      } else if (dy < -threshold) {
+        dir = Direction.up;
+      }
+    }
+    if (dir != null && dir != _lastTiltDir) {
+      _lastTiltDir = dir;
+      _game.steer(dir);
+    }
   }
 
   void _handleGameOver(int score) {
@@ -80,8 +123,9 @@ class _SnakeScreenState extends State<SnakeScreen> {
   // Сколько резервировать снизу под выбранную схему (чтобы поле не налезало
   // на контролы). Раздельным раскладкам нужно меньше места, чем крестовине.
   static double _bottomReserve(ControlScheme s) => switch (s) {
-        ControlScheme.gestures => 28,
+        ControlScheme.gestures || ControlScheme.gyro => 28,
         ControlScheme.dpadSplitLeft || ControlScheme.dpadSplitRight => 160,
+        ControlScheme.turnButtons => 150,
         ControlScheme.dpad || ControlScheme.joystick => 212,
       };
 
@@ -137,6 +181,7 @@ class _SnakeScreenState extends State<SnakeScreen> {
                     visible: running,
                     accent: const Color(0xFF34D399),
                     onDir: (d) => _game.steer(_dirOf(d)),
+                    onTurn: (cw) => _game.turn(cw),
                   );
                 },
               ),

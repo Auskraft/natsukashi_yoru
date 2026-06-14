@@ -20,7 +20,13 @@ enum ControlScheme {
   dpadSplitRight,
 
   /// Плавающий джойстик.
-  joystick;
+  joystick,
+
+  /// Поворот относительно курса (2 кнопки).
+  turnButtons,
+
+  /// Наклон телефона (гироскоп/акселерометр).
+  gyro;
 
   String get id => name;
 
@@ -37,6 +43,8 @@ enum ControlScheme {
         ControlScheme.dpadSplitLeft => '↕ слева',
         ControlScheme.dpadSplitRight => '↕ справа',
         ControlScheme.joystick => 'Джойстик',
+        ControlScheme.turnButtons => 'Поворот',
+        ControlScheme.gyro => 'Наклон',
       };
 
   /// Эмодзи-иконка для чипа/строки списка.
@@ -46,6 +54,8 @@ enum ControlScheme {
         ControlScheme.dpadSplitLeft => '🎮',
         ControlScheme.dpadSplitRight => '🎮',
         ControlScheme.joystick => '🕹️',
+        ControlScheme.turnButtons => '🔄',
+        ControlScheme.gyro => '📱',
       };
 
   /// Пояснение под превью в пикере.
@@ -63,6 +73,12 @@ enum ControlScheme {
         ControlScheme.joystick =>
           'Плавающий джойстик: зажми и веди в сторону. '
               'Палец сам тянется к центру.',
+        ControlScheme.turnButtons =>
+          'Две кнопки: поворот влево/вправо относительно курса. '
+              'Как в классических аркадных змейках.',
+        ControlScheme.gyro =>
+          'Наклоняй телефон — змейка едет туда. '
+              'Чувствительность можно подкрутить.',
       };
 }
 

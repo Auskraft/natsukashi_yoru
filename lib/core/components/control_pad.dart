@@ -28,18 +28,26 @@ class ControlOverlay extends StatelessWidget {
     super.key,
     required this.scheme,
     required this.onDir,
+    this.onTurn,
     this.accent = const Color(0xFF7C5CFF),
     this.visible = true,
   });
 
   final ControlScheme scheme;
   final ValueChanged<PadDir> onDir;
+
+  /// Для относительной схемы [ControlScheme.turnButtons]: true — по часовой
+  /// (вправо), false — против (влево).
+  final ValueChanged<bool>? onTurn;
   final Color accent;
   final bool visible;
 
   @override
   Widget build(BuildContext context) {
-    if (scheme == ControlScheme.gestures) return const SizedBox.shrink();
+    // Жесты и наклон не имеют экранного контрола.
+    if (scheme == ControlScheme.gestures || scheme == ControlScheme.gyro) {
+      return const SizedBox.shrink();
+    }
 
     final Widget control = switch (scheme) {
       ControlScheme.dpad =>
@@ -49,7 +57,9 @@ class ControlOverlay extends StatelessWidget {
       ControlScheme.dpadSplitRight => DirectionPad(
           onDir: onDir, accent: accent, layout: DpadLayout.splitRight),
       ControlScheme.joystick => FloatingJoystick(onDir: onDir, accent: accent),
-      ControlScheme.gestures => const SizedBox.shrink(),
+      ControlScheme.turnButtons =>
+        TurnPad(onTurn: onTurn ?? (_) {}, accent: accent),
+      ControlScheme.gestures || ControlScheme.gyro => const SizedBox.shrink(),
     };
 
     return IgnorePointer(
@@ -158,11 +168,13 @@ class _PadButton extends StatefulWidget {
     required this.icon,
     required this.accent,
     required this.onPressed,
+    this.size = 58,
   });
 
   final IconData icon;
   final Color accent;
   final VoidCallback onPressed;
+  final double size;
 
   @override
   State<_PadButton> createState() => _PadButtonState();
@@ -186,8 +198,8 @@ class _PadButtonState extends State<_PadButton> {
         scale: _down ? 0.9 : 1,
         duration: const Duration(milliseconds: 90),
         child: Container(
-          width: 58,
-          height: 58,
+          width: widget.size,
+          height: widget.size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: _down
@@ -209,10 +221,40 @@ class _PadButtonState extends State<_PadButton> {
           child: Icon(
             widget.icon,
             color: _down ? Colors.white : widget.accent,
-            size: 30,
+            size: widget.size * 0.52,
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Две кнопки относительного поворота: ◄ влево / ► вправо относительно курса.
+/// Для игр с «направлением движения» (Snake). [onTurn] true = по часовой.
+class TurnPad extends StatelessWidget {
+  const TurnPad({super.key, required this.onTurn, required this.accent});
+
+  final ValueChanged<bool> onTurn;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _PadButton(
+          icon: Icons.rotate_left_rounded,
+          accent: accent,
+          size: 78,
+          onPressed: () => onTurn(false),
+        ),
+        _PadButton(
+          icon: Icons.rotate_right_rounded,
+          accent: accent,
+          size: 78,
+          onPressed: () => onTurn(true),
+        ),
+      ],
     );
   }
 }

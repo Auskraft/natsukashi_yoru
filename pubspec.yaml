@@ -41,6 +41,7 @@ dependencies:
   shared_preferences: ^2.3.2 # сохранение прогресса/рекордов
   flutter_displaymode: ^0.6.0 # высокая герцовка экрана (90/120/144 Гц)
   url_launcher: ^6.3.1        # открыть страницу RuStore / почту (оценка)
+  sensors_plus: ^6.0.0        # акселерометр — управление наклоном (Snake)
 
 dev_dependencies:
   flutter_test:

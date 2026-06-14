@@ -37,6 +37,10 @@ class SnakeLogic {
   bool dead = false;
 
   Direction get direction => _dir;
+
+  /// Направление, которое применится на следующем шаге (с учётом уже введённого
+  /// поворота) — для относительного управления, чтобы быстрые повороты копились.
+  Direction get intendedDirection => _pendingDir ?? _dir;
   Point<int> get head => snake.first;
   int get length => snake.length;
 

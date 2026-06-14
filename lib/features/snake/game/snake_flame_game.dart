@@ -103,6 +103,27 @@ class SnakeFlameGame extends FlameGame {
     }
   }
 
+  /// Относительный поворот: [clockwise] — вправо (по часовой), иначе влево.
+  /// Крутим от уже введённого направления, чтобы быстрые повороты копились.
+  void turn(bool clockwise) {
+    final d = _logic.intendedDirection;
+    steer(clockwise ? _rotateCw(d) : _rotateCcw(d));
+  }
+
+  static Direction _rotateCw(Direction d) => switch (d) {
+        Direction.up => Direction.right,
+        Direction.right => Direction.down,
+        Direction.down => Direction.left,
+        Direction.left => Direction.up,
+      };
+
+  static Direction _rotateCcw(Direction d) => switch (d) {
+        Direction.up => Direction.left,
+        Direction.left => Direction.down,
+        Direction.down => Direction.right,
+        Direction.right => Direction.up,
+      };
+
   @override
   void update(double dt) {
     super.update(dt);
