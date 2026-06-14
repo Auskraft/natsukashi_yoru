@@ -26,7 +26,10 @@ enum ControlScheme {
   turnButtons,
 
   /// Наклон телефона (гироскоп/акселерометр).
-  gyro;
+  gyro,
+
+  /// Кнопки для падающих фигур: ◄ ► + поворот + сброс (Tetris/Puyo).
+  tetrisButtons;
 
   String get id => name;
 
@@ -45,6 +48,7 @@ enum ControlScheme {
         ControlScheme.joystick => 'Джойстик',
         ControlScheme.turnButtons => 'Поворот',
         ControlScheme.gyro => 'Наклон',
+        ControlScheme.tetrisButtons => 'Кнопки',
       };
 
   /// Эмодзи-иконка для чипа/строки списка.
@@ -56,6 +60,7 @@ enum ControlScheme {
         ControlScheme.joystick => '🕹️',
         ControlScheme.turnButtons => '🔄',
         ControlScheme.gyro => '📱',
+        ControlScheme.tetrisButtons => '🎮',
       };
 
   /// Пояснение под превью в пикере.
@@ -79,6 +84,8 @@ enum ControlScheme {
         ControlScheme.gyro =>
           'Наклоняй телефон — змейка едет туда. '
               'Чувствительность можно подкрутить.',
+        ControlScheme.tetrisButtons =>
+          'Кнопки ◄ ► + поворот + сброс. Удобно управлять падающими фигурами.',
       };
 }
 

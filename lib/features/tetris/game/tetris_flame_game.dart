@@ -14,9 +14,12 @@ enum TetrisPhase { ready, running, dead }
 /// частицами, slam-эффект при hard drop, фигура-призрак, разгон по уровням,
 /// всплывающие очки и особая хаптика на комбо/Тетрис.
 class TetrisFlameGame extends FlameGame {
-  TetrisFlameGame({required this.onGameOver});
+  TetrisFlameGame({required this.onGameOver, this.bottomInset = 44});
 
   final void Function(int score) onGameOver;
+
+  /// Резерв снизу под экранные контролы (задаёт экран-хост по схеме).
+  final double bottomInset;
 
   final TetrisLogic _logic = TetrisLogic();
   final Random _rng = Random();
@@ -37,9 +40,8 @@ class TetrisFlameGame extends FlameGame {
   double _acc = 0;
   double get _gravityInterval => max(0.07, 0.85 * pow(0.85, level.value - 1));
 
-  // Геометрия поля.
+  // Геометрия поля. Низ — [bottomInset] (резерв под контролы, задаёт хост).
   static const double _topInset = 124;
-  static const double _bottomInset = 44;
   double _cell = 0;
   Offset _origin = Offset.zero;
   double get cellSize => _cell;
@@ -317,7 +319,7 @@ class TetrisFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - _bottomInset;
+    final availH = size.y - _topInset - bottomInset;
     _cell = min(size.x / (TetrisLogic.cols + 2), availH / TetrisLogic.rows);
     final w = _cell * TetrisLogic.cols;
     final h = _cell * TetrisLogic.rows;

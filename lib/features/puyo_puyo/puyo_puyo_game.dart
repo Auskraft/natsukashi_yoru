@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/control_pad.dart';
 import '../../core/components/overlay_kit.dart';
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import 'game/puyo_puyo_flame_game.dart';
 import 'ui/puyo_puyo_overlays.dart';
@@ -29,12 +31,17 @@ class _PuyoPuyoScreenState extends State<PuyoPuyoScreen> {
   double _dxTotal = 0;
   double _dyTotal = 0;
   bool _hardDropped = false;
+  late ControlScheme _controls;
 
   @override
   void initState() {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
-    _game = PuyoPuyoFlameGame(onGameOver: _handleGameOver);
+    _controls = GameStorage.instance.controlScheme(_gameId);
+    _game = PuyoPuyoFlameGame(
+      onGameOver: _handleGameOver,
+      bottomInset: _bottomReserve(_controls),
+    );
   }
 
   void _handleGameOver(int score) {
@@ -83,6 +90,10 @@ class _PuyoPuyoScreenState extends State<PuyoPuyoScreen> {
     }
   }
 
+  // Резерв снизу под выбранную схему (для тетрис-пада).
+  static double _bottomReserve(ControlScheme s) =>
+      s == ControlScheme.tetrisButtons ? 130 : 40;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,6 +135,27 @@ class _PuyoPuyoScreenState extends State<PuyoPuyoScreen> {
                         onExit: () => Navigator.of(context).pop(),
                       );
                   }
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  final running = _game.phase.value == PuyoPhase.running &&
+                      !_game.isPaused.value;
+                  return TetrisControls(
+                    scheme: _controls,
+                    visible: running,
+                    accent: const Color(0xFFFBBF24),
+                    onLeft: _game.moveLeft,
+                    onRight: _game.moveRight,
+                    onRotate: _game.rotate,
+                    onDrop: _game.hardDrop,
+                  );
                 },
               ),
             ),

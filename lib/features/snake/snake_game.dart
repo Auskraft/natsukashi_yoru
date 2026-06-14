@@ -123,7 +123,10 @@ class _SnakeScreenState extends State<SnakeScreen> {
   // Сколько резервировать снизу под выбранную схему (чтобы поле не налезало
   // на контролы). Раздельным раскладкам нужно меньше места, чем крестовине.
   static double _bottomReserve(ControlScheme s) => switch (s) {
-        ControlScheme.gestures || ControlScheme.gyro => 28,
+        ControlScheme.gestures ||
+        ControlScheme.gyro ||
+        ControlScheme.tetrisButtons =>
+          28,
         ControlScheme.dpadSplitLeft || ControlScheme.dpadSplitRight => 160,
         ControlScheme.turnButtons => 150,
         ControlScheme.dpad || ControlScheme.joystick => 212,

@@ -59,7 +59,10 @@ class ControlOverlay extends StatelessWidget {
       ControlScheme.joystick => FloatingJoystick(onDir: onDir, accent: accent),
       ControlScheme.turnButtons =>
         TurnPad(onTurn: onTurn ?? (_) {}, accent: accent),
-      ControlScheme.gestures || ControlScheme.gyro => const SizedBox.shrink(),
+      ControlScheme.gestures ||
+      ControlScheme.gyro ||
+      ControlScheme.tetrisButtons =>
+        const SizedBox.shrink(),
     };
 
     return IgnorePointer(
@@ -253,6 +256,117 @@ class TurnPad extends StatelessWidget {
           accent: accent,
           size: 78,
           onPressed: () => onTurn(true),
+        ),
+      ],
+    );
+  }
+}
+
+/// Обёртка контролов для игр с падающими фигурами (Tetris/Puyo): по [scheme]
+/// показывает [TetrisPad] (схема `tetrisButtons`) или ничего (жесты).
+class TetrisControls extends StatelessWidget {
+  const TetrisControls({
+    super.key,
+    required this.scheme,
+    required this.onLeft,
+    required this.onRight,
+    required this.onRotate,
+    required this.onDrop,
+    this.accent = const Color(0xFF7C5CFF),
+    this.visible = true,
+  });
+
+  final ControlScheme scheme;
+  final VoidCallback onLeft;
+  final VoidCallback onRight;
+  final VoidCallback onRotate;
+  final VoidCallback onDrop;
+  final Color accent;
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) {
+    if (scheme != ControlScheme.tetrisButtons) return const SizedBox.shrink();
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedOpacity(
+        opacity: visible ? 1 : 0,
+        duration: const Duration(milliseconds: 160),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: TetrisPad(
+              onLeft: onLeft,
+              onRight: onRight,
+              onRotate: onRotate,
+              onDrop: onDrop,
+              accent: accent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Пад для падающих фигур: слева ◄ ►, справа поворот и сброс.
+class TetrisPad extends StatelessWidget {
+  const TetrisPad({
+    super.key,
+    required this.onLeft,
+    required this.onRight,
+    required this.onRotate,
+    required this.onDrop,
+    required this.accent,
+  });
+
+  final VoidCallback onLeft;
+  final VoidCallback onRight;
+  final VoidCallback onRotate;
+  final VoidCallback onDrop;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PadButton(
+              icon: Icons.keyboard_arrow_left_rounded,
+              accent: accent,
+              size: 64,
+              onPressed: onLeft,
+            ),
+            const SizedBox(width: 12),
+            _PadButton(
+              icon: Icons.keyboard_arrow_right_rounded,
+              accent: accent,
+              size: 64,
+              onPressed: onRight,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PadButton(
+              icon: Icons.rotate_right_rounded,
+              accent: accent,
+              size: 64,
+              onPressed: onRotate,
+            ),
+            const SizedBox(width: 12),
+            _PadButton(
+              icon: Icons.keyboard_double_arrow_down_rounded,
+              accent: accent,
+              size: 64,
+              onPressed: onDrop,
+            ),
+          ],
         ),
       ],
     );

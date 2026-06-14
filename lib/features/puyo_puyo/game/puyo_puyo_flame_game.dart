@@ -23,9 +23,12 @@ Color puyoColor(int color) {
 /// цепочки дают растущий множитель. Управление как в Tetris: тап — поворот,
 /// тяга — сдвиг, свайп вниз — hard drop.
 class PuyoPuyoFlameGame extends FlameGame {
-  PuyoPuyoFlameGame({required this.onGameOver});
+  PuyoPuyoFlameGame({required this.onGameOver, this.bottomInset = 40});
 
   final void Function(int score) onGameOver;
+
+  /// Резерв снизу под экранные контролы (задаёт экран-хост по схеме).
+  final double bottomInset;
 
   final PuyoPuyoLogic _logic = PuyoPuyoLogic();
   final Random _rng = Random();
@@ -48,7 +51,6 @@ class PuyoPuyoFlameGame extends FlameGame {
   int _fpsFrames = 0;
 
   static const double _topInset = 120;
-  static const double _bottomInset = 40;
   double _cell = 0;
   Offset _origin = Offset.zero;
   double get cellSize => _cell;
@@ -230,7 +232,7 @@ class PuyoPuyoFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - _bottomInset;
+    final availH = size.y - _topInset - bottomInset;
     _cell = min(size.x / (PuyoPuyoLogic.cols + 1), availH / PuyoPuyoLogic.rows);
     final w = _cell * PuyoPuyoLogic.cols;
     final h = _cell * PuyoPuyoLogic.rows;

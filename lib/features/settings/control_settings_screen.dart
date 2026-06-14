@@ -7,13 +7,29 @@ import 'control_picker_screen.dart';
 
 /// Игры с выбором схемы управления (направленный ввод).
 /// По мере раскатки добавляй id (и подключай ControlOverlay в их экранах-хостах).
-const Set<String> kControllableGames = {'snake', 'game2048', 'sokoban'};
+const Set<String> kControllableGames = {
+  'snake',
+  'game2048',
+  'sokoban',
+  'tetris',
+  'puyo_puyo',
+};
 
 /// Доступные схемы по игре. Snake — все 7. Абсолютные 4-направленные (2048,
 /// склад) — без относительного поворота (нет «курса») и наклона (пазлам важна
 /// точность).
 List<ControlScheme> schemesFor(String gameId) {
   switch (gameId) {
+    case 'snake':
+      return const [
+        ControlScheme.gestures,
+        ControlScheme.dpad,
+        ControlScheme.dpadSplitLeft,
+        ControlScheme.dpadSplitRight,
+        ControlScheme.joystick,
+        ControlScheme.turnButtons,
+        ControlScheme.gyro,
+      ];
     case 'game2048':
     case 'sokoban':
       return const [
@@ -23,8 +39,11 @@ List<ControlScheme> schemesFor(String gameId) {
         ControlScheme.dpadSplitRight,
         ControlScheme.joystick,
       ];
+    case 'tetris':
+    case 'puyo_puyo':
+      return const [ControlScheme.gestures, ControlScheme.tetrisButtons];
     default:
-      return ControlScheme.values;
+      return const [ControlScheme.gestures];
   }
 }
 
