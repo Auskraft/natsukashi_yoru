@@ -137,7 +137,7 @@ const List<GameEntry> kGameCatalog = [
   ),
   GameEntry(
     id: 'block_puzzle',
-    title: '1010!',
+    title: 'Blocks',
     nameJp: 'ブロック',
     icon: Icons.dashboard,
     accent: Color(0xFF38BDF8),
@@ -192,8 +192,8 @@ const List<GameEntry> kGameCatalog = [
   ),
   GameEntry(
     id: 'sokoban',
-    title: 'Sokoban',
-    nameJp: '倉庫番',
+    title: 'Warehouse',
+    nameJp: '倉庫',
     icon: Icons.warehouse,
     accent: Color(0xFF2DD4BF),
     difficulty: Difficulty.hard,

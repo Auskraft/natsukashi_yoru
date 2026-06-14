@@ -51,7 +51,8 @@
   Tetris→**Lines**/«Линии», Bejeweled→**Gems**/«Самоцветы», Puyo Puyo→**Drops**/
   «Капельки», Breakout(Арканоид)→**Bricks**/«Блокобой»; попап `TETRIS!`→`QUAD!`.
   **Папки/id игр НЕ менялись** (ключи хранилища GameStorage). Скриншот №2
-  («…в Тетрисе») перезалить. Пограничные `1010!`/`Sokoban` пока оставлены.
+  («…в Тетрисе») перезалить. Также `1010!`→**Blocks**/«Блоки»,
+  `Sokoban`→**Warehouse**/«Склад» (JP `倉庫番`→`倉庫`).
 - ✅ **221 тест** зелёные, `flutter analyze` чисто. Всё в `main` на GitHub.
 
 ## Игры (14) и режимы удержания
@@ -64,13 +65,13 @@
 | puyo_puyo | Капельки (Drops) | цепочки |
 | minesweeper | Сапёр | на время (меньше=лучше) |
 | game2048 | 2048 | свайп-слияния |
-| block_puzzle | 1010! | drag-полимино |
+| block_puzzle | Блоки (Blocks) | drag-полимино |
 | bubble_shooter | Bubble Shooter | соты + уровни |
 | stack_tower | Stack | точность башни |
 | whack_a_mole | Поймай крота | блиц 30 сек |
 | lights_out | Lights Out | меньше ходов |
 | breakout | Блокобой (Bricks) | жизни + уровни |
-| sokoban | Сокобан | 6 уровней, меньше ходов |
+| sokoban | Склад (Warehouse) | 6 уровней, меньше ходов |
 
 Реестр игр — **`lib/features/menu/game_catalog.dart`** (одна `GameEntry` на игру:
 id = ключ хранилища/папки, japanese name, accent, difficulty, metric, builder).

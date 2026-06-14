@@ -89,7 +89,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
                     case SokobanPhase.ready:
                       return ReadyPanel(
                         emoji: '📦',
-                        title: 'Sokoban',
+                        title: 'Warehouse',
                         subtitle:
                             'Свайп — ход • Толкай ящики на цели • Меньше ходов — лучше',
                         onStart: _game.start,

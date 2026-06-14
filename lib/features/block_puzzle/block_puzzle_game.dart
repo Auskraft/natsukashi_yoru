@@ -74,7 +74,7 @@ class _BlockPuzzleScreenState extends State<BlockPuzzleScreen> {
                     case BlockPuzzlePhase.ready:
                       return ReadyPanel(
                         emoji: '🧩',
-                        title: '1010!',
+                        title: 'Blocks',
                         subtitle:
                             'Тяни фигуры на поле • Собирай строки и столбцы',
                         onStart: _game.start,
