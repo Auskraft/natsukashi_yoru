@@ -61,7 +61,8 @@ class ControlOverlay extends StatelessWidget {
         TurnPad(onTurn: onTurn ?? (_) {}, accent: accent),
       ControlScheme.gestures ||
       ControlScheme.gyro ||
-      ControlScheme.tetrisButtons =>
+      ControlScheme.tetrisButtons ||
+      ControlScheme.paddleButtons =>
         const SizedBox.shrink(),
     };
 
@@ -369,6 +370,161 @@ class TetrisPad extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Обёртка контролов ракетки (Breakout): по [scheme] показывает [PaddlePad]
+/// (схема `paddleButtons`) или ничего.
+class PaddleControls extends StatelessWidget {
+  const PaddleControls({
+    super.key,
+    required this.scheme,
+    required this.onMove,
+    required this.onLaunch,
+    this.accent = const Color(0xFF7C5CFF),
+    this.visible = true,
+  });
+
+  final ControlScheme scheme;
+
+  /// Направление движения ракетки: -1 (влево), 0 (стоп), 1 (вправо).
+  final ValueChanged<double> onMove;
+  final VoidCallback onLaunch;
+  final Color accent;
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) {
+    if (scheme != ControlScheme.paddleButtons) return const SizedBox.shrink();
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedOpacity(
+        opacity: visible ? 1 : 0,
+        duration: const Duration(milliseconds: 160),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: PaddlePad(onMove: onMove, onLaunch: onLaunch, accent: accent),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Пад ракетки: слева ◄ ► (удержание двигает ракетку), справа — запуск мяча.
+class PaddlePad extends StatelessWidget {
+  const PaddlePad({
+    super.key,
+    required this.onMove,
+    required this.onLaunch,
+    required this.accent,
+  });
+
+  final ValueChanged<double> onMove;
+  final VoidCallback onLaunch;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _HoldButton(
+              icon: Icons.keyboard_arrow_left_rounded,
+              accent: accent,
+              onChanged: (down) => onMove(down ? -1 : 0),
+            ),
+            const SizedBox(width: 12),
+            _HoldButton(
+              icon: Icons.keyboard_arrow_right_rounded,
+              accent: accent,
+              onChanged: (down) => onMove(down ? 1 : 0),
+            ),
+          ],
+        ),
+        _PadButton(
+          icon: Icons.arrow_upward_rounded,
+          accent: accent,
+          size: 64,
+          onPressed: onLaunch,
+        ),
+      ],
+    );
+  }
+}
+
+/// Кнопка-удержание: нажал — onChanged(true), отпустил — onChanged(false).
+/// Для непрерывного движения (ракетка Breakout).
+class _HoldButton extends StatefulWidget {
+  const _HoldButton({
+    required this.icon,
+    required this.accent,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final Color accent;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  State<_HoldButton> createState() => _HoldButtonState();
+}
+
+class _HoldButtonState extends State<_HoldButton> {
+  static const double _size = 64;
+  bool _down = false;
+
+  void _set(bool v) {
+    if (v == _down) return;
+    setState(() => _down = v);
+    if (v) Haptics.select();
+    widget.onChanged(v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _set(true),
+      onTapUp: (_) => _set(false),
+      onTapCancel: () => _set(false),
+      child: AnimatedScale(
+        scale: _down ? 0.92 : 1,
+        duration: const Duration(milliseconds: 90),
+        child: Container(
+          width: _size,
+          height: _size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _down
+                ? widget.accent.withValues(alpha: 0.28)
+                : const Color(0x14FFFFFF),
+            border: Border.all(
+              color: _down ? widget.accent : const Color(0x22FFFFFF),
+              width: 1.5,
+            ),
+            boxShadow: _down
+                ? [
+                    BoxShadow(
+                      color: widget.accent.withValues(alpha: 0.5),
+                      blurRadius: 14,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Icon(
+            widget.icon,
+            color: _down ? Colors.white : widget.accent,
+            size: _size * 0.52,
+          ),
+        ),
+      ),
     );
   }
 }

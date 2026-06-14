@@ -125,7 +125,8 @@ class _SnakeScreenState extends State<SnakeScreen> {
   static double _bottomReserve(ControlScheme s) => switch (s) {
         ControlScheme.gestures ||
         ControlScheme.gyro ||
-        ControlScheme.tetrisButtons =>
+        ControlScheme.tetrisButtons ||
+        ControlScheme.paddleButtons =>
           28,
         ControlScheme.dpadSplitLeft || ControlScheme.dpadSplitRight => 160,
         ControlScheme.turnButtons => 150,

@@ -29,7 +29,10 @@ enum ControlScheme {
   gyro,
 
   /// Кнопки для падающих фигур: ◄ ► + поворот + сброс (Tetris/Puyo).
-  tetrisButtons;
+  tetrisButtons,
+
+  /// Кнопки ракетки: ◄ ► (удержание) + запуск мяча (Breakout).
+  paddleButtons;
 
   String get id => name;
 
@@ -49,6 +52,7 @@ enum ControlScheme {
         ControlScheme.turnButtons => 'Поворот',
         ControlScheme.gyro => 'Наклон',
         ControlScheme.tetrisButtons => 'Кнопки',
+        ControlScheme.paddleButtons => 'Кнопки',
       };
 
   /// Эмодзи-иконка для чипа/строки списка.
@@ -61,6 +65,7 @@ enum ControlScheme {
         ControlScheme.turnButtons => '🔄',
         ControlScheme.gyro => '📱',
         ControlScheme.tetrisButtons => '🎮',
+        ControlScheme.paddleButtons => '🎮',
       };
 
   /// Пояснение под превью в пикере.
@@ -86,6 +91,8 @@ enum ControlScheme {
               'Чувствительность можно подкрутить.',
         ControlScheme.tetrisButtons =>
           'Кнопки ◄ ► + поворот + сброс. Удобно управлять падающими фигурами.',
+        ControlScheme.paddleButtons =>
+          'Кнопки ◄ ► (удержание) двигают ракетку, отдельная кнопка запускает мяч.',
       };
 }
 

@@ -16,7 +16,11 @@ enum BreakoutPhase { ready, running, dead }
 /// Чистая физика — в [BreakoutLogic]; здесь только тайминг, ввод, рендер
 /// и фидбек. Реалтайм-симуляция идёт в [update] при `_active`.
 class BreakoutFlameGame extends FlameGame {
-  BreakoutFlameGame({required this.onGameOver, this.cols = 8});
+  BreakoutFlameGame({
+    required this.onGameOver,
+    this.cols = 8,
+    this.bottomInset = 28,
+  });
 
   /// Вызывается при конце партии со счётом (для рекордов/оверлея).
   final void Function(int score) onGameOver;
@@ -24,12 +28,18 @@ class BreakoutFlameGame extends FlameGame {
   /// Число колонок кирпичей (передаётся в логику).
   final int cols;
 
+  /// Резерв снизу под экранные контролы (задаёт экран-хост по схеме).
+  final double bottomInset;
+
   late final BreakoutLogic _logic =
       BreakoutLogic(cols: cols, fieldHeight: _fieldAspect);
   final Random _rng = Random();
 
   /// Высота поля в долях ширины (портретное поле под мобильный экран).
   static const double _fieldAspect = 1.45;
+
+  // Скорость кнопочного движения ракетки (доля поля в секунду).
+  static const double _kPaddleKeySpeed = 1.6;
 
   // Наблюдаемое для HUD/оверлеев.
   final ValueNotifier<int> score = ValueNotifier(0);
@@ -56,13 +66,15 @@ class BreakoutFlameGame extends FlameGame {
   // кадр игрок не двигал — держим текущую позицию логики.
   late double _targetPaddleX = 0.5;
 
+  // Направление кнопочного движения ракетки: -1..1 (0 — стоп). Задаётся
+  // экранными кнопками; применяется в [update].
+  double _paddleDir = 0;
+
   // Комбо: серия кирпичей без касания ракетки.
   int _chain = 0;
 
-  // Резерв сверху под HUD и снизу под подсказку, чтобы поле не налезало на
-  // оверлеи.
+  // Резерв сверху под HUD; снизу — [bottomInset] (под контролы, задаёт хост).
   static const double _topInset = 92;
-  static const double _bottomInset = 28;
 
   // Эффекты.
   final List<_Spark> _sparks = [];
@@ -131,6 +143,9 @@ class BreakoutFlameGame extends FlameGame {
     }
   }
 
+  /// Кнопочное управление ракеткой: [dir] -1..1 (0 — стоп). Применяется в update.
+  void setPaddleDir(double dir) => _paddleDir = dir.clamp(-1.0, 1.0);
+
   // ── Игровой цикл ───────────────────────────────────────────────────────────
 
   @override
@@ -151,6 +166,11 @@ class BreakoutFlameGame extends FlameGame {
 
     // Ограничиваем dt, чтобы при подвисании кадра физика не «прыгнула».
     final clamped = dt > 0.05 ? 0.05 : dt;
+    if (_paddleDir != 0) {
+      _targetPaddleX =
+          (_targetPaddleX + _paddleDir * _kPaddleKeySpeed * clamped)
+              .clamp(0.0, 1.0);
+    }
     final res = _logic.step(clamped, _targetPaddleX);
     _applyResult(res);
   }
@@ -294,7 +314,7 @@ class BreakoutFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - _bottomInset;
+    final availH = size.y - _topInset - bottomInset;
     if (availH <= 0 || size.x <= 0) return;
     // Поле имеет соотношение 1 : fieldHeight. Вписываем по меньшей стороне.
     _scale = min(size.x, availH / _logic.fieldHeight);

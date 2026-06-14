@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/control_pad.dart';
 import '../../core/components/overlay_kit.dart';
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import 'game/breakout_flame_game.dart';
 import 'ui/breakout_overlays.dart';
@@ -25,12 +27,17 @@ class _BreakoutScreenState extends State<BreakoutScreen> {
   late int _best;
   int _lastScore = 0;
   bool _isRecord = false;
+  late ControlScheme _controls;
 
   @override
   void initState() {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
-    _game = BreakoutFlameGame(onGameOver: _handleGameOver);
+    _controls = GameStorage.instance.controlScheme(_gameId);
+    _game = BreakoutFlameGame(
+      onGameOver: _handleGameOver,
+      bottomInset: _controls == ControlScheme.paddleButtons ? 130 : 28,
+    );
   }
 
   @override
@@ -62,17 +69,21 @@ class _BreakoutScreenState extends State<BreakoutScreen> {
   }
 
   void _onTapDown(TapDownDetails d) {
+    // При кнопочной схеме поле не реагирует — управление через пад.
+    if (_controls == ControlScheme.paddleButtons) return;
     // Тап одновременно наводит ракетку и запускает приклеенный мяч.
     _game.aimAt(d.localPosition.dx);
     _game.launch();
   }
 
   void _onPanStart(DragStartDetails d) {
+    if (_controls == ControlScheme.paddleButtons) return;
     _game.aimAt(d.localPosition.dx);
     _game.launch();
   }
 
   void _onPanUpdate(DragUpdateDetails d) {
+    if (_controls == ControlScheme.paddleButtons) return;
     _game.aimAt(d.localPosition.dx);
   }
 
@@ -117,6 +128,25 @@ class _BreakoutScreenState extends State<BreakoutScreen> {
                         onExit: () => Navigator.of(context).pop(),
                       );
                   }
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  final running = _game.phase.value == BreakoutPhase.running &&
+                      !_game.isPaused.value;
+                  return PaddleControls(
+                    scheme: _controls,
+                    visible: running,
+                    accent: const Color(0xFF60A5FA),
+                    onMove: _game.setPaddleDir,
+                    onLaunch: _game.launch,
+                  );
                 },
               ),
             ),

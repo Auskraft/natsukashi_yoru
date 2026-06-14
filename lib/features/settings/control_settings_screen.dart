@@ -13,6 +13,7 @@ const Set<String> kControllableGames = {
   'sokoban',
   'tetris',
   'puyo_puyo',
+  'breakout',
 };
 
 /// Доступные схемы по игре. Snake — все 7. Абсолютные 4-направленные (2048,
@@ -42,6 +43,8 @@ List<ControlScheme> schemesFor(String gameId) {
     case 'tetris':
     case 'puyo_puyo':
       return const [ControlScheme.gestures, ControlScheme.tetrisButtons];
+    case 'breakout':
+      return const [ControlScheme.gestures, ControlScheme.paddleButtons];
     default:
       return const [ControlScheme.gestures];
   }
