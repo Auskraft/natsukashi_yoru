@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/control_pad.dart';
 import '../../core/components/overlay_kit.dart';
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import 'components/sokoban_logic.dart';
 import 'game/sokoban_flame_game.dart';
@@ -28,12 +30,17 @@ class _SokobanScreenState extends State<SokobanScreen> {
   bool _isRecord = false;
   bool _hasNext = false;
   Offset _drag = Offset.zero;
+  late ControlScheme _controls;
 
   @override
   void initState() {
     super.initState();
     _bestMoves = GameStorage.instance.bestTime(_gameId);
-    _game = SokobanFlameGame(onLevelSolved: _handleSolved);
+    _controls = GameStorage.instance.controlScheme(_gameId);
+    _game = SokobanFlameGame(
+      onLevelSolved: _handleSolved,
+      bottomInset: _bottomReserve(_controls),
+    );
   }
 
   void _handleSolved(int moves, int level) {
@@ -64,6 +71,20 @@ class _SokobanScreenState extends State<SokobanScreen> {
     _game.step(dir);
     _drag = Offset.zero;
   }
+
+  static SokoDir _sokoOf(PadDir d) => switch (d) {
+        PadDir.up => SokoDir.up,
+        PadDir.down => SokoDir.down,
+        PadDir.left => SokoDir.left,
+        PadDir.right => SokoDir.right,
+      };
+
+  // Резерв снизу под выбранную схему (поворот/наклон тут не предлагаются).
+  static double _bottomReserve(ControlScheme s) => switch (s) {
+        ControlScheme.dpadSplitLeft || ControlScheme.dpadSplitRight => 160,
+        ControlScheme.dpad || ControlScheme.joystick => 212,
+        _ => 36,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +128,24 @@ class _SokobanScreenState extends State<SokobanScreen> {
                         onExit: () => Navigator.of(context).pop(),
                       );
                   }
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  final running = _game.phase.value == SokobanPhase.running &&
+                      !_game.isPaused.value;
+                  return ControlOverlay(
+                    scheme: _controls,
+                    visible: running,
+                    accent: const Color(0xFF2DD4BF),
+                    onDir: (d) => _game.step(_sokoOf(d)),
+                  );
                 },
               ),
             ),

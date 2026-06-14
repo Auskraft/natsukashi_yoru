@@ -15,13 +15,20 @@ enum Game2048Phase { ready, running, dead }
 ///
 /// Чистая механика — в [Game2048Logic]; здесь только ввод, рендер и фидбек.
 class Game2048FlameGame extends FlameGame {
-  Game2048FlameGame({required this.onGameOver, this.gridSize = 4});
+  Game2048FlameGame({
+    required this.onGameOver,
+    this.gridSize = 4,
+    this.bottomInset = 44,
+  });
 
   /// Вызывается при конце игры со счётом партии (для рекордов/оверлея).
   final void Function(int score) onGameOver;
 
   /// Сторона квадратной сетки. (Не `size` — у FlameGame это Vector2 экрана.)
   final int gridSize;
+
+  /// Резерв снизу под экранные контролы (задаёт экран-хост по схеме).
+  final double bottomInset;
 
   late final Game2048Logic _logic = Game2048Logic(size: gridSize);
   final Random _rng = Random();
@@ -43,9 +50,8 @@ class Game2048FlameGame extends FlameGame {
     isPaused.value = !isPaused.value;
   }
 
-  // Геометрия поля.
+  // Геометрия поля. Низ — [bottomInset] (резерв под контролы, задаёт хост).
   static const double _topInset = 110;
-  static const double _bottomInset = 44;
   double _cell = 0;
   Offset _origin = Offset.zero;
   double _boardSize = 0;
@@ -272,7 +278,7 @@ class Game2048FlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - _bottomInset;
+    final availH = size.y - _topInset - bottomInset;
     _boardSize = min(size.x - 24, availH);
     _cell = _boardSize / gridSize;
     _origin = Offset(

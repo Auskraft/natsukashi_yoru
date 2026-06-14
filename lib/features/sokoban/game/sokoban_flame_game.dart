@@ -17,11 +17,14 @@ enum SokobanPhase { ready, running, won }
 /// победе уровня. Чистая механика — в [SokobanLogic]; здесь тайминг, ввод,
 /// рендер и фидбек.
 class SokobanFlameGame extends FlameGame {
-  SokobanFlameGame({required this.onLevelSolved});
+  SokobanFlameGame({required this.onLevelSolved, this.bottomInset = 36});
 
   /// Вызывается при прохождении уровня: число ходов на этом уровне
   /// (для рекорда «меньше — лучше») и пройденный номер уровня.
   final void Function(int moves, int level) onLevelSolved;
+
+  /// Резерв снизу под экранные контролы (задаёт экран-хост по схеме).
+  final double bottomInset;
 
   final SokobanLogic _logic = SokobanLogic();
   final Random _rng = Random();
@@ -45,9 +48,8 @@ class SokobanFlameGame extends FlameGame {
   }
 
   // Геометрия поля (считается в render по текущему размеру и размеру уровня).
-  // Резерв сверху под HUD, снизу — небольшой отступ.
+  // Резерв сверху под HUD; снизу — [bottomInset] (под контролы, задаёт хост).
   static const double _topInset = 104;
-  static const double _bottomInset = 36;
   double _cell = 0;
   Offset _origin = Offset.zero;
 
@@ -272,7 +274,7 @@ class SokobanFlameGame extends FlameGame {
     final cols = _logic.cols;
     final rows = _logic.rows;
     if (cols == 0 || rows == 0) return;
-    final availH = size.y - _topInset - _bottomInset;
+    final availH = size.y - _topInset - bottomInset;
     _cell = min(size.x / cols, availH / rows);
     final w = _cell * cols;
     final h = _cell * rows;

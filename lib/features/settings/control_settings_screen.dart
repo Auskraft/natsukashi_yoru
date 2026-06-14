@@ -1,13 +1,32 @@
 import 'package:flutter/material.dart';
 
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import '../menu/game_catalog.dart';
 import 'control_picker_screen.dart';
 
-/// Игры с выбором схемы управления (направленный ввод). Пилот: пока Snake.
-/// По мере раскатки добавляй id: например 'tetris', 'puyo_puyo', 'game2048',
-/// 'sokoban' (и заодно подключай [ControlOverlay] в их экранах-хостах).
-const Set<String> kControllableGames = {'snake'};
+/// Игры с выбором схемы управления (направленный ввод).
+/// По мере раскатки добавляй id (и подключай ControlOverlay в их экранах-хостах).
+const Set<String> kControllableGames = {'snake', 'game2048', 'sokoban'};
+
+/// Доступные схемы по игре. Snake — все 7. Абсолютные 4-направленные (2048,
+/// склад) — без относительного поворота (нет «курса») и наклона (пазлам важна
+/// точность).
+List<ControlScheme> schemesFor(String gameId) {
+  switch (gameId) {
+    case 'game2048':
+    case 'sokoban':
+      return const [
+        ControlScheme.gestures,
+        ControlScheme.dpad,
+        ControlScheme.dpadSplitLeft,
+        ControlScheme.dpadSplitRight,
+        ControlScheme.joystick,
+      ];
+    default:
+      return ControlScheme.values;
+  }
+}
 
 /// Хаб «Управление»: список игр, для которых можно выбрать схему. Тап по игре
 /// открывает пикер с живым превью.
@@ -59,6 +78,7 @@ class _ControlSettingsScreenState extends State<ControlSettingsScreen> {
                     gameId: e.id,
                     title: e.title,
                     accent: e.accent,
+                    schemes: schemesFor(e.id),
                   ),
                 ),
               );

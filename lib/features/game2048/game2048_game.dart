@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/control_pad.dart';
 import '../../core/components/overlay_kit.dart';
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import 'components/game2048_logic.dart';
 import 'game/game2048_flame_game.dart';
@@ -34,12 +36,17 @@ class _Game2048ScreenState extends State<Game2048Screen> {
   Offset _drag = Offset.zero;
   // Один ход на жест: после срабатывания игнорируем остаток текущего свайпа.
   bool _consumed = false;
+  late ControlScheme _controls;
 
   @override
   void initState() {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
-    _game = Game2048FlameGame(onGameOver: _handleGameOver);
+    _controls = GameStorage.instance.controlScheme(_gameId);
+    _game = Game2048FlameGame(
+      onGameOver: _handleGameOver,
+      bottomInset: _bottomReserve(_controls),
+    );
   }
 
   void _handleGameOver(int score) {
@@ -68,6 +75,20 @@ class _Game2048ScreenState extends State<Game2048Screen> {
     _game.swipe(dir);
     _consumed = true;
   }
+
+  static SlideDirection _slideOf(PadDir d) => switch (d) {
+        PadDir.up => SlideDirection.up,
+        PadDir.down => SlideDirection.down,
+        PadDir.left => SlideDirection.left,
+        PadDir.right => SlideDirection.right,
+      };
+
+  // Резерв снизу под выбранную схему (поворот/наклон тут не предлагаются).
+  static double _bottomReserve(ControlScheme s) => switch (s) {
+        ControlScheme.dpadSplitLeft || ControlScheme.dpadSplitRight => 160,
+        ControlScheme.dpad || ControlScheme.joystick => 212,
+        _ => 44,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +134,24 @@ class _Game2048ScreenState extends State<Game2048Screen> {
                         onExit: () => Navigator.of(context).pop(),
                       );
                   }
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  final running = _game.phase.value == Game2048Phase.running &&
+                      !_game.isPaused.value;
+                  return ControlOverlay(
+                    scheme: _controls,
+                    visible: running,
+                    accent: const Color(0xFFFFD54F),
+                    onDir: (d) => _game.swipe(_slideOf(d)),
+                  );
                 },
               ),
             ),

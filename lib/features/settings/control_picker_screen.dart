@@ -17,11 +17,13 @@ class ControlPickerScreen extends StatefulWidget {
     required this.gameId,
     required this.title,
     required this.accent,
+    required this.schemes,
   });
 
   final String gameId;
   final String title;
   final Color accent;
+  final List<ControlScheme> schemes;
 
   @override
   State<ControlPickerScreen> createState() => _ControlPickerScreenState();
@@ -69,7 +71,7 @@ class _ControlPickerScreenState extends State<ControlPickerScreen> {
               spacing: 10,
               runSpacing: 10,
               children: [
-                for (final s in ControlScheme.values)
+                for (final s in widget.schemes)
                   _SchemeChip(
                     scheme: s,
                     accent: widget.accent,
