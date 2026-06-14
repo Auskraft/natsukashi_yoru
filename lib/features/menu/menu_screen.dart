@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../core/legal/legal_screens.dart';
 import '../../core/rating/rate_sheet.dart';
 import '../../core/storage/game_storage.dart';
+import '../settings/control_picker_screen.dart';
 import '../settings/control_settings_screen.dart';
 import 'game_catalog.dart';
 
@@ -108,6 +109,20 @@ class _MenuScreenState extends State<MenuScreen>
     }
   }
 
+  // Открыть настройки управления конкретной игры (иконка на карточке).
+  void _openControls(GameEntry entry) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ControlPickerScreen(
+          gameId: entry.id,
+          title: entry.title,
+          accent: entry.accent,
+          schemes: schemesFor(entry.id),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final storage = GameStorage.instance;
@@ -176,6 +191,9 @@ class _MenuScreenState extends State<MenuScreen>
                         entry: entry,
                         record: _recordLabel(entry, storage),
                         onTap: () => _open(entry),
+                        onControls: kControllableGames.contains(entry.id)
+                            ? () => _openControls(entry)
+                            : null,
                       );
                     },
                   ),
@@ -294,11 +312,15 @@ class _GameCard extends StatelessWidget {
     required this.entry,
     required this.record,
     required this.onTap,
+    this.onControls,
   });
 
   final GameEntry entry;
   final String? record;
   final VoidCallback onTap;
+
+  /// Открыть настройки управления игрой (null — у игры нет схем управления).
+  final VoidCallback? onControls;
 
   @override
   Widget build(BuildContext context) {
@@ -334,7 +356,43 @@ class _GameCard extends StatelessWidget {
               children: [
                 _IconBlock(icon: entry.icon, accent: entry.accent),
                 Expanded(child: _CardContent(entry: entry, record: record)),
+                if (onControls != null)
+                  _ControlButton(accent: entry.accent, onTap: onControls!),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Иконка-геймпад на карточке: быстрый вход в настройки управления игрой.
+class _ControlButton extends StatelessWidget {
+  const _ControlButton({required this.accent, required this.onTap});
+
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Tooltip(
+        message: 'Управление',
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Icon(
+                Icons.sports_esports_rounded,
+                size: 22,
+                color: accent.withValues(alpha: 0.85),
+              ),
             ),
           ),
         ),
