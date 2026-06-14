@@ -53,6 +53,9 @@ class _MenuScreenState extends State<MenuScreen>
     duration: const Duration(seconds: 8),
   )..repeat();
 
+  // Для «назад дважды — выход»: время первого нажатия back на лобби.
+  DateTime? _lastBackAt;
+
   List<_Star> _generateStars() {
     final rng = Random(7); // стабильное небо
     return List.generate(60, (_) {
@@ -86,11 +89,36 @@ class _MenuScreenState extends State<MenuScreen>
     if (mounted) setState(() {}); // подтянуть свежие рекорды
   }
 
+  // Классический «назад дважды — выход»: первый back показывает подсказку,
+  // второй в течение 2 сек закрывает приложение. Чинит «свайп сразу выходит».
+  void _onBackAttempt() {
+    final now = DateTime.now();
+    final prev = _lastBackAt;
+    if (prev == null || now.difference(prev) > const Duration(seconds: 2)) {
+      _lastBackAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ещё раз «назад» — чтобы выйти'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      SystemNavigator.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final storage = GameStorage.instance;
-    return Scaffold(
-      backgroundColor: _bg,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _onBackAttempt();
+      },
+      child: Scaffold(
+        backgroundColor: _bg,
       body: Stack(
         children: [
           // Анимированное звёздное небо по всему экрану + верхнее свечение.
@@ -156,6 +184,7 @@ class _MenuScreenState extends State<MenuScreen>
             ),
           ),
         ],
+      ),
       ),
     );
   }
