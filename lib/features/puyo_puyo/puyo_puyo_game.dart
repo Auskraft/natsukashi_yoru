@@ -108,7 +108,7 @@ class _PuyoPuyoScreenState extends State<PuyoPuyoScreen> {
                     case PuyoPhase.ready:
                       return ReadyPanel(
                         emoji: '🟢',
-                        title: 'Puyo Puyo',
+                        title: 'Drops',
                         subtitle:
                             'Собери 4+ одного цвета • Тап — поворот • Свайп вниз — сброс',
                         onStart: _game.start,

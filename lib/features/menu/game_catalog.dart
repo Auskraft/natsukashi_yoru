@@ -82,8 +82,8 @@ const List<GameEntry> kGameCatalog = [
   ),
   GameEntry(
     id: 'tetris',
-    title: 'Tetris',
-    nameJp: 'テトリス',
+    title: 'Lines',
+    nameJp: 'ライン',
     icon: Icons.view_module,
     accent: Color(0xFF818CF8),
     difficulty: Difficulty.hard,
@@ -100,7 +100,7 @@ const List<GameEntry> kGameCatalog = [
   ),
   GameEntry(
     id: 'bejeweled',
-    title: 'Bejeweled',
+    title: 'Gems',
     nameJp: 'ジュエル',
     icon: Icons.diamond,
     accent: Color(0xFF22D3EE),
@@ -109,8 +109,8 @@ const List<GameEntry> kGameCatalog = [
   ),
   GameEntry(
     id: 'puyo_puyo',
-    title: 'Puyo Puyo',
-    nameJp: 'ぷよぷよ',
+    title: 'Drops',
+    nameJp: 'ドロップ',
     icon: Icons.bubble_chart,
     accent: Color(0xFFFBBF24),
     difficulty: Difficulty.medium,
@@ -183,8 +183,8 @@ const List<GameEntry> kGameCatalog = [
   ),
   GameEntry(
     id: 'breakout',
-    title: 'Breakout',
-    nameJp: 'ブロック崩し',
+    title: 'Bricks',
+    nameJp: 'レンガ',
     icon: Icons.sports_tennis,
     accent: Color(0xFF60A5FA),
     difficulty: Difficulty.medium,

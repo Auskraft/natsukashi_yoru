@@ -269,7 +269,7 @@ class TetrisReadyOverlay extends StatelessWidget {
         children: [
           const Text('🧱', style: TextStyle(fontSize: 72)),
           const SizedBox(height: 16),
-          Text('Tetris', style: Theme.of(context).textTheme.headlineLarge),
+          Text('Lines', style: Theme.of(context).textTheme.headlineLarge),
           const SizedBox(height: 8),
           Text(
             'Тап — поворот • Тяни — двигай • Свайп вниз — сброс',

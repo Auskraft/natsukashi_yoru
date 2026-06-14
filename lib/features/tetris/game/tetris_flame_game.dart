@@ -167,7 +167,7 @@ class TetrisFlameGame extends FlameGame {
     final String label;
     final Color color;
     if (res.tetris) {
-      label = res.backToBack ? 'BACK-TO-BACK\nTETRIS!' : 'TETRIS!';
+      label = res.backToBack ? 'BACK-TO-BACK\nQUAD!' : 'QUAD!';
       color = const Color(0xFFFFD54F);
     } else if (res.cleared >= 2) {
       label = '${res.cleared} В РЯД';

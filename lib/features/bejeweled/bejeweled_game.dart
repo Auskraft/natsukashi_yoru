@@ -95,7 +95,7 @@ class _BejeweledScreenState extends State<BejeweledScreen> {
                     case BejeweledPhase.ready:
                       return ReadyPanel(
                         emoji: '💠',
-                        title: 'Bejeweled',
+                        title: 'Gems',
                         subtitle:
                             '25 ходов • Свайп к соседу • матч-4/5 → особые камни',
                         onStart: _game.start,

@@ -101,7 +101,7 @@ class _BreakoutScreenState extends State<BreakoutScreen> {
                     case BreakoutPhase.ready:
                       return ReadyPanel(
                         emoji: '🧱',
-                        title: 'Breakout',
+                        title: 'Bricks',
                         subtitle:
                             'Веди ракетку пальцем • Тап — запуск мяча • Разбей все кирпичи',
                         onStart: _game.start,
