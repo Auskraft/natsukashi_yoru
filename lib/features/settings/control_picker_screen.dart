@@ -197,11 +197,21 @@ class _ControlPreview extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                child: IgnorePointer(
-                  child: ControlOverlay(
-                    scheme: scheme,
-                    accent: accent,
-                    onDir: _noop,
+                // Внутри фейкового телефона обнуляем системные отступы — иначе
+                // SafeArea в ControlOverlay добавит реальный нижний инсет и
+                // крестовина наедет на «поле» (в самой игре этого нет).
+                child: MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    padding: EdgeInsets.zero,
+                    viewPadding: EdgeInsets.zero,
+                    viewInsets: EdgeInsets.zero,
+                  ),
+                  child: IgnorePointer(
+                    child: ControlOverlay(
+                      scheme: scheme,
+                      accent: accent,
+                      onDir: _noop,
+                    ),
                   ),
                 ),
               ),
@@ -270,7 +280,7 @@ class _FauxBoard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 180),
+          const SizedBox(height: 190),
         ],
       ),
     );

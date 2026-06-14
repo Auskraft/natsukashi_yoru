@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/legal/legal_screens.dart';
 import '../../core/rating/rate_sheet.dart';
@@ -73,9 +74,15 @@ class _MenuScreenState extends State<MenuScreen>
   }
 
   Future<void> _open(GameEntry entry) async {
-    await Navigator.of(context).push(
+    // Иммерсивный режим на время игры: край-свайпы не вылетают в «назад/домой»,
+    // а лишь временно показывают системные бары (best practice для игр). Это
+    // чинит «свайп закрывает приложение». Возврат в лобби — снова edge-to-edge.
+    final navigator = Navigator.of(context);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    await navigator.push(
       MaterialPageRoute<void>(builder: entry.builder),
     );
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     if (mounted) setState(() {}); // подтянуть свежие рекорды
   }
 
