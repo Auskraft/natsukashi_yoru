@@ -51,7 +51,7 @@ class BubbleShooterHud extends StatelessWidget {
                 builder: (_, combo, _) => ComboBadge(combo: combo, label: 'POP'),
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
             _BottomReadout(game: game),
           ],
         ),

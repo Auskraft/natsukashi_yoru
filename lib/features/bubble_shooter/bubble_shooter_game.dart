@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/components/control_pad.dart';
 import '../../core/components/overlay_kit.dart';
+import '../../core/input/control_scheme.dart';
 import '../../core/storage/game_storage.dart';
 import 'game/bubble_shooter_flame_game.dart';
 import 'ui/bubble_shooter_overlays.dart';
@@ -26,11 +28,13 @@ class _BubbleShooterScreenState extends State<BubbleShooterScreen> {
   late int _best;
   int _lastScore = 0;
   bool _isRecord = false;
+  late ControlScheme _controls;
 
   @override
   void initState() {
     super.initState();
     _best = GameStorage.instance.highScore(_gameId);
+    _controls = GameStorage.instance.controlScheme(_gameId);
     _game = BubbleShooterFlameGame(onGameOver: _handleGameOver);
   }
 
@@ -50,15 +54,26 @@ class _BubbleShooterScreenState extends State<BubbleShooterScreen> {
     unawaited(storage.registerPlay(DateTime.now()));
   }
 
+  // При кнопочной схеме поле не реагирует — прицел/выстрел через пад.
+  void _aimGesture(Offset p) {
+    if (_controls == ControlScheme.paddleButtons) return;
+    _game.aimAt(p);
+  }
+
+  void _shootGesture() {
+    if (_controls == ControlScheme.paddleButtons) return;
+    _game.shoot();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
-        onTapDown: (d) => _game.aimAt(d.localPosition),
-        onTapUp: (_) => _game.shoot(),
-        onPanStart: (d) => _game.aimAt(d.localPosition),
-        onPanUpdate: (d) => _game.aimAt(d.localPosition),
-        onPanEnd: (_) => _game.shoot(),
+        onTapDown: (d) => _aimGesture(d.localPosition),
+        onTapUp: (_) => _shootGesture(),
+        onPanStart: (d) => _aimGesture(d.localPosition),
+        onPanUpdate: (d) => _aimGesture(d.localPosition),
+        onPanEnd: (_) => _shootGesture(),
         child: Stack(
           children: [
             GameWidget<BubbleShooterFlameGame>(game: _game),
@@ -93,6 +108,26 @@ class _BubbleShooterScreenState extends State<BubbleShooterScreen> {
                         onExit: () => Navigator.of(context).pop(),
                       );
                   }
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_game.phase, _game.isPaused]),
+                builder: (context, _) {
+                  final running =
+                      _game.phase.value == BubbleShooterPhase.running &&
+                          !_game.isPaused.value;
+                  return PaddleControls(
+                    scheme: _controls,
+                    visible: running,
+                    accent: const Color(0xFFFB7185),
+                    onMove: _game.setAimDir,
+                    onLaunch: _game.shoot,
+                  );
                 },
               ),
             ),

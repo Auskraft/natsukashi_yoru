@@ -64,6 +64,13 @@ class BubbleShooterFlameGame extends FlameGame {
   double _aimAngle = 0;
   static const double _maxAim = 1.30; // ~75° от вертикали в каждую сторону
 
+  // Кнопочное вращение прицела: -1..1 (0 — стоп). Применяется в [update].
+  double _aimDir = 0;
+  static const double _kAimSpeed = 1.6; // рад/сек
+
+  /// Кнопочный прицел: [dir] -1..1 (0 — стоп). Влево/вправо крутит угол.
+  void setAimDir(double dir) => _aimDir = dir.clamp(-1.0, 1.0);
+
   // Летящий снаряд (анимация выстрела). Когда не null — ввод выстрела заблокирован.
   _Projectile? _shot;
   // Цвет летящего снаряда и его цель: поле меняем только в момент «приземления»,
@@ -97,6 +104,7 @@ class BubbleShooterFlameGame extends FlameGame {
     bubbles.value = _logic.bubbleCount;
     level.value = _logic.level;
     _aimAngle = 0;
+    _aimDir = 0;
     _shot = null;
     _shotColor = null;
     _shotTarget = null;
@@ -165,6 +173,10 @@ class BubbleShooterFlameGame extends FlameGame {
 
     if (!_active) return;
 
+    if (_aimDir != 0 && _shot == null) {
+      _aimAngle =
+          (_aimAngle + _aimDir * _kAimSpeed * dt).clamp(-_maxAim, _maxAim);
+    }
     _advanceShot(dt);
   }
 
