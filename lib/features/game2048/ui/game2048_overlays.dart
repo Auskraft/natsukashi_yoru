@@ -52,7 +52,7 @@ class Game2048Hud extends StatelessWidget {
                 ),
               ],
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
             _BottomReadout(game: game),
           ],
         ),
@@ -76,7 +76,7 @@ class _BottomReadout extends StatelessWidget {
       fontWeight: FontWeight.w700,
     );
     final hint = Text(
-      'СВАЙП — двигай плитки · одинаковые сливаются',
+      'Двигай плитки · одинаковые сливаются',
       style: style,
       textAlign: TextAlign.center,
     );

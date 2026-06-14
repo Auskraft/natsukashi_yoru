@@ -56,7 +56,7 @@ class SokobanHud extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Свайп — ход • Толкай ящики на цели',
+              'Толкай ящики на цели',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.4),
                 fontSize: 12,
@@ -65,7 +65,7 @@ class SokobanHud extends StatelessWidget {
               ),
             ),
             if (kDebugMode) ...[
-              const Spacer(),
+              const SizedBox(height: 8),
               ValueListenableBuilder<double>(
                 valueListenable: game.fps,
                 builder: (_, fps, _) => Text(

@@ -57,7 +57,7 @@ class PuyoHud extends StatelessWidget {
               ),
             ),
             if (kDebugMode) ...[
-              const Spacer(),
+              const SizedBox(height: 8),
               Center(
                 child: ValueListenableBuilder<double>(
                   valueListenable: game.fps,

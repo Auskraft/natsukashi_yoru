@@ -78,7 +78,7 @@ class TetrisHud extends StatelessWidget {
                 ),
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
             _ControlsHint(game: game),
           ],
         ),
@@ -239,7 +239,7 @@ class _ControlsHint extends StatelessWidget {
       letterSpacing: 1.2,
       fontWeight: FontWeight.w700,
     );
-    final hint = Text('ТАП — поворот · ТЯНИ — двигай · ВНИЗ — сброс',
+    final hint = Text('Собирай и сжигай линии',
         style: style, textAlign: TextAlign.center);
     if (!kDebugMode) return Center(child: hint);
     return Column(

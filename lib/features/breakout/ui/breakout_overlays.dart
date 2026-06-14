@@ -49,7 +49,7 @@ class BreakoutHud extends StatelessWidget {
                 ),
               ],
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
             _BottomReadout(game: game),
           ],
         ),
