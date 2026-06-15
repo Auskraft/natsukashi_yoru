@@ -74,7 +74,7 @@ class BreakoutFlameGame extends FlameGame {
   int _chain = 0;
 
   // Резерв сверху под HUD; снизу — [bottomInset] (под контролы, задаёт хост).
-  static const double _topInset = 92;
+  static const double _topInset = 112;
 
   // Эффекты.
   final List<_Spark> _sparks = [];
@@ -144,7 +144,13 @@ class BreakoutFlameGame extends FlameGame {
   }
 
   /// Кнопочное управление ракеткой: [dir] -1..1 (0 — стоп). Применяется в update.
-  void setPaddleDir(double dir) => _paddleDir = dir.clamp(-1.0, 1.0);
+  void setPaddleDir(double dir) {
+    _paddleDir = dir.clamp(-1.0, 1.0);
+    // Тап (короткое нажатие) тоже двигает — сразу шаг, не только удержание.
+    if (_paddleDir != 0 && _active) {
+      _targetPaddleX = (_targetPaddleX + _paddleDir * 0.06).clamp(0.0, 1.0);
+    }
+  }
 
   // ── Игровой цикл ───────────────────────────────────────────────────────────
 
@@ -314,7 +320,10 @@ class BreakoutFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - bottomInset;
+    final c = buildContext;
+    final safeTop = c == null ? 0.0 : (MediaQuery.maybeOf(c)?.padding.top ?? 0.0);
+    final top = _topInset + safeTop;
+    final availH = size.y - top - bottomInset;
     if (availH <= 0 || size.x <= 0) return;
     // Поле имеет соотношение 1 : fieldHeight. Вписываем по меньшей стороне.
     _scale = min(size.x, availH / _logic.fieldHeight);
@@ -322,7 +331,7 @@ class BreakoutFlameGame extends FlameGame {
     _fieldH = _scale * _logic.fieldHeight;
     _origin = Offset(
       (size.x - _fieldW) / 2,
-      _topInset + (availH - _fieldH) / 2,
+      top + (availH - _fieldH) / 2,
     );
   }
 

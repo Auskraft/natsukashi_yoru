@@ -274,11 +274,14 @@ class SokobanFlameGame extends FlameGame {
     final cols = _logic.cols;
     final rows = _logic.rows;
     if (cols == 0 || rows == 0) return;
-    final availH = size.y - _topInset - bottomInset;
+    final c = buildContext;
+    final safeTop = c == null ? 0.0 : (MediaQuery.maybeOf(c)?.padding.top ?? 0.0);
+    final top = _topInset + safeTop;
+    final availH = size.y - top - bottomInset;
     _cell = min(size.x / cols, availH / rows);
     final w = _cell * cols;
     final h = _cell * rows;
-    _origin = Offset((size.x - w) / 2, _topInset + (availH - h) / 2);
+    _origin = Offset((size.x - w) / 2, top + (availH - h) / 2);
   }
 
   Rect _rect(int x, int y) => Rect.fromLTWH(

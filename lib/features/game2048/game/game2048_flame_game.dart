@@ -278,12 +278,15 @@ class Game2048FlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - bottomInset;
+    final c = buildContext;
+    final safeTop = c == null ? 0.0 : (MediaQuery.maybeOf(c)?.padding.top ?? 0.0);
+    final top = _topInset + safeTop;
+    final availH = size.y - top - bottomInset;
     _boardSize = min(size.x - 24, availH);
     _cell = _boardSize / gridSize;
     _origin = Offset(
       (size.x - _boardSize) / 2,
-      _topInset + (availH - _boardSize) / 2,
+      top + (availH - _boardSize) / 2,
     );
   }
 

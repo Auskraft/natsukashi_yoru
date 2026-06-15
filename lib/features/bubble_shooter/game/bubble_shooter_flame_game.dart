@@ -69,7 +69,13 @@ class BubbleShooterFlameGame extends FlameGame {
   static const double _kAimSpeed = 1.6; // рад/сек
 
   /// Кнопочный прицел: [dir] -1..1 (0 — стоп). Влево/вправо крутит угол.
-  void setAimDir(double dir) => _aimDir = dir.clamp(-1.0, 1.0);
+  void setAimDir(double dir) {
+    _aimDir = dir.clamp(-1.0, 1.0);
+    // Тап тоже поворачивает прицел — сразу небольшой шаг.
+    if (_aimDir != 0 && _shot == null && _active) {
+      _aimAngle = (_aimAngle + _aimDir * 0.12).clamp(-_maxAim, _maxAim);
+    }
+  }
 
   // Летящий снаряд (анимация выстрела). Когда не null — ввод выстрела заблокирован.
   _Projectile? _shot;
@@ -334,10 +340,13 @@ class BubbleShooterFlameGame extends FlameGame {
   void _computeGeometry() {
     final fieldW = _logic.fieldWidth;
     final fieldH = _logic.rows * BubbleShooterLogic.rowHeight + 2 * BubbleShooterLogic.radius;
-    final availH = size.y - _topInset - _bottomInset;
+    final c = buildContext;
+    final safeTop = c == null ? 0.0 : (MediaQuery.maybeOf(c)?.padding.top ?? 0.0);
+    final top = _topInset + safeTop;
+    final availH = size.y - top - _bottomInset;
     _scale = min(size.x / fieldW, availH / fieldH);
     final w = _scale * fieldW;
-    _origin = Offset((size.x - w) / 2, _topInset);
+    _origin = Offset((size.x - w) / 2, top);
   }
 
   Offset _toPx(double gx, double gy) =>

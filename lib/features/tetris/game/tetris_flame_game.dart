@@ -41,7 +41,7 @@ class TetrisFlameGame extends FlameGame {
   double get _gravityInterval => max(0.07, 0.85 * pow(0.85, level.value - 1));
 
   // Геометрия поля. Низ — [bottomInset] (резерв под контролы, задаёт хост).
-  static const double _topInset = 124;
+  static const double _topInset = 168;
   double _cell = 0;
   Offset _origin = Offset.zero;
   double get cellSize => _cell;
@@ -319,11 +319,14 @@ class TetrisFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - bottomInset;
+    final c = buildContext;
+    final safeTop = c == null ? 0.0 : (MediaQuery.maybeOf(c)?.padding.top ?? 0.0);
+    final top = _topInset + safeTop;
+    final availH = size.y - top - bottomInset;
     _cell = min(size.x / (TetrisLogic.cols + 2), availH / TetrisLogic.rows);
     final w = _cell * TetrisLogic.cols;
     final h = _cell * TetrisLogic.rows;
-    _origin = Offset((size.x - w) / 2, _topInset + (availH - h) / 2);
+    _origin = Offset((size.x - w) / 2, top + (availH - h) / 2);
   }
 
   Rect _cellRect(num gx, num gy) => Rect.fromLTWH(

@@ -50,7 +50,7 @@ class PuyoPuyoFlameGame extends FlameGame {
   double _fpsAcc = 0;
   int _fpsFrames = 0;
 
-  static const double _topInset = 120;
+  static const double _topInset = 136;
   double _cell = 0;
   Offset _origin = Offset.zero;
   double get cellSize => _cell;
@@ -232,11 +232,14 @@ class PuyoPuyoFlameGame extends FlameGame {
   }
 
   void _computeGeometry() {
-    final availH = size.y - _topInset - bottomInset;
+    final c = buildContext;
+    final safeTop = c == null ? 0.0 : (MediaQuery.maybeOf(c)?.padding.top ?? 0.0);
+    final top = _topInset + safeTop;
+    final availH = size.y - top - bottomInset;
     _cell = min(size.x / (PuyoPuyoLogic.cols + 1), availH / PuyoPuyoLogic.rows);
     final w = _cell * PuyoPuyoLogic.cols;
     final h = _cell * PuyoPuyoLogic.rows;
-    _origin = Offset((size.x - w) / 2, _topInset + (availH - h) / 2);
+    _origin = Offset((size.x - w) / 2, top + (availH - h) / 2);
   }
 
   Offset _center(double gx, double gy) =>
