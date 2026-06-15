@@ -89,11 +89,14 @@ class _BreakoutScreenState extends State<BreakoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // При схеме «кнопки» отключаем жесты поля (null), иначе pan-распознаватель
+    // перехватывает удержание кнопок ракетки.
+    final buttons = _controls == ControlScheme.paddleButtons;
     return Scaffold(
       body: GestureDetector(
-        onTapDown: _onTapDown,
-        onPanStart: _onPanStart,
-        onPanUpdate: _onPanUpdate,
+        onTapDown: buttons ? null : _onTapDown,
+        onPanStart: buttons ? null : _onPanStart,
+        onPanUpdate: buttons ? null : _onPanUpdate,
         child: Stack(
           children: [
             GameWidget<BreakoutFlameGame>(game: _game),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../feedback/haptics.dart';
@@ -19,6 +21,13 @@ enum DpadLayout {
 
   /// Раздельно: вверх/вниз справа, влево/вправо слева.
   splitRight,
+}
+
+/// Горизонтальные отступы контролов с учётом системных зон жестов — чтобы
+/// крайние кнопки (особенно слева) не перехватывались системным «назад».
+EdgeInsets _controlInsets(BuildContext context) {
+  final gi = MediaQuery.of(context).systemGestureInsets;
+  return EdgeInsets.fromLTRB(max(20.0, gi.left), 0, max(20.0, gi.right), 12);
 }
 
 /// Обёртка: по [scheme] показывает нужный контрол (или ничего для жестов).
@@ -74,7 +83,7 @@ class ControlOverlay extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: _controlInsets(context),
             child: control,
           ),
         ),
@@ -296,7 +305,7 @@ class TetrisControls extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: _controlInsets(context),
             child: TetrisPad(
               onLeft: onLeft,
               onRight: onRight,
@@ -405,7 +414,7 @@ class PaddleControls extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: _controlInsets(context),
             child: PaddlePad(onMove: onMove, onLaunch: onLaunch, accent: accent),
           ),
         ),

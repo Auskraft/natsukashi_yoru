@@ -54,26 +54,18 @@ class _BubbleShooterScreenState extends State<BubbleShooterScreen> {
     unawaited(storage.registerPlay(DateTime.now()));
   }
 
-  // При кнопочной схеме поле не реагирует — прицел/выстрел через пад.
-  void _aimGesture(Offset p) {
-    if (_controls == ControlScheme.paddleButtons) return;
-    _game.aimAt(p);
-  }
-
-  void _shootGesture() {
-    if (_controls == ControlScheme.paddleButtons) return;
-    _game.shoot();
-  }
-
   @override
   Widget build(BuildContext context) {
+    // При схеме «кнопки» полностью отключаем жесты поля (null-обработчики):
+    // иначе их pan-распознаватель перехватывает удержание кнопок прицела.
+    final buttons = _controls == ControlScheme.paddleButtons;
     return Scaffold(
       body: GestureDetector(
-        onTapDown: (d) => _aimGesture(d.localPosition),
-        onTapUp: (_) => _shootGesture(),
-        onPanStart: (d) => _aimGesture(d.localPosition),
-        onPanUpdate: (d) => _aimGesture(d.localPosition),
-        onPanEnd: (_) => _shootGesture(),
+        onTapDown: buttons ? null : (d) => _game.aimAt(d.localPosition),
+        onTapUp: buttons ? null : (_) => _game.shoot(),
+        onPanStart: buttons ? null : (d) => _game.aimAt(d.localPosition),
+        onPanUpdate: buttons ? null : (d) => _game.aimAt(d.localPosition),
+        onPanEnd: buttons ? null : (_) => _game.shoot(),
         child: Stack(
           children: [
             GameWidget<BubbleShooterFlameGame>(game: _game),
