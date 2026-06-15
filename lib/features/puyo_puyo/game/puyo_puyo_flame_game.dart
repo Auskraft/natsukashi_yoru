@@ -50,7 +50,7 @@ class PuyoPuyoFlameGame extends FlameGame {
   double _fpsAcc = 0;
   int _fpsFrames = 0;
 
-  static const double _topInset = 136;
+  static const double _topInset = 150;
   double _cell = 0;
   Offset _origin = Offset.zero;
   double get cellSize => _cell;

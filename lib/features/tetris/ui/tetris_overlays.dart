@@ -239,18 +239,22 @@ class _ControlsHint extends StatelessWidget {
       letterSpacing: 1.2,
       fontWeight: FontWeight.w700,
     );
-    final hint = Text('Собирай и сжигай линии',
-        style: style, textAlign: TextAlign.center);
-    if (!kDebugMode) return Center(child: hint);
-    return Column(
-      children: [
-        Center(child: hint),
-        const SizedBox(height: 2),
-        ValueListenableBuilder<double>(
-          valueListenable: game.fps,
-          builder: (_, fps, _) => Text('${fps.round()} FPS', style: style),
+    const hintText = 'Собирай и сжигай линии';
+    if (!kDebugMode) {
+      return Center(
+        child: Text(hintText, style: style, textAlign: TextAlign.center),
+      );
+    }
+    // Debug: хинт и FPS в одну строку, чтобы не занимать лишнюю высоту.
+    return Center(
+      child: ValueListenableBuilder<double>(
+        valueListenable: game.fps,
+        builder: (_, fps, _) => Text(
+          '$hintText   ·   ${fps.round()} FPS',
+          style: style,
+          textAlign: TextAlign.center,
         ),
-      ],
+      ),
     );
   }
 }

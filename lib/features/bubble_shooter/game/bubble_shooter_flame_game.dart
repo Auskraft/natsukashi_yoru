@@ -66,14 +66,14 @@ class BubbleShooterFlameGame extends FlameGame {
 
   // Кнопочное вращение прицела: -1..1 (0 — стоп). Применяется в [update].
   double _aimDir = 0;
-  static const double _kAimSpeed = 1.6; // рад/сек
+  static const double _kAimSpeed = 1.1; // рад/сек (мягче для точной наводки)
 
   /// Кнопочный прицел: [dir] -1..1 (0 — стоп). Влево/вправо крутит угол.
   void setAimDir(double dir) {
     _aimDir = dir.clamp(-1.0, 1.0);
     // Тап тоже поворачивает прицел — сразу небольшой шаг.
     if (_aimDir != 0 && _shot == null && _active) {
-      _aimAngle = (_aimAngle + _aimDir * 0.12).clamp(-_maxAim, _maxAim);
+      _aimAngle = (_aimAngle + _aimDir * 0.045).clamp(-_maxAim, _maxAim);
     }
   }
 

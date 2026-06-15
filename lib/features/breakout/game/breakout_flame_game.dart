@@ -39,7 +39,7 @@ class BreakoutFlameGame extends FlameGame {
   static const double _fieldAspect = 1.45;
 
   // Скорость кнопочного движения ракетки (доля поля в секунду).
-  static const double _kPaddleKeySpeed = 1.6;
+  static const double _kPaddleKeySpeed = 1.3;
 
   // Наблюдаемое для HUD/оверлеев.
   final ValueNotifier<int> score = ValueNotifier(0);
@@ -148,7 +148,7 @@ class BreakoutFlameGame extends FlameGame {
     _paddleDir = dir.clamp(-1.0, 1.0);
     // Тап (короткое нажатие) тоже двигает — сразу шаг, не только удержание.
     if (_paddleDir != 0 && _active) {
-      _targetPaddleX = (_targetPaddleX + _paddleDir * 0.06).clamp(0.0, 1.0);
+      _targetPaddleX = (_targetPaddleX + _paddleDir * 0.03).clamp(0.0, 1.0);
     }
   }
 
